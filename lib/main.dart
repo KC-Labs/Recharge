@@ -2,6 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
+// custom modules
+import 'DistanceRequest.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +40,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  int _testSeconds;
+
   DatabaseReference locationsRef;
 
   void initState() {
@@ -47,9 +52,16 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _incrementCounter() {
+  void _testMaps() async {
+    String apiKey = 'AIzaSyAwLF8Iff11hU55MulnjxMUUp3BdJfjtqs';
+    DistanceRequest test_request = DistanceRequest(
+      apiKey: apiKey,
+      origin: '33.688789,-117.707609',
+      destinations: '33.672206,-117.714971',
+    );
+    List distances = await test_request.fetchDistances();
     setState(() {
-      _counter++;
+      _testSeconds = distances[0];
     });
   }
 
@@ -64,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'You have pushed the button this many times:',
+              '$_testSeconds',
             ),
             Text(
               '$_counter',
@@ -74,8 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        onPressed: _testMaps,
+        tooltip: 'Test Maps',
         child: Icon(Icons.add),
       ),
     );

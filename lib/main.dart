@@ -20,13 +20,13 @@ Future<void> main() async {
       name: name, 
       options: options,
   );
-  print('Firebaseapp initialized.');
+  print('Firebase app initialized.');
   runApp(MaterialApp(
-    title: 'Flutter Demo',
+    title: 'Recharge',
     theme: ThemeData(
       primarySwatch: Colors.blue,
     ),
-    home: MyHomePage(title: 'Flutter Demo Home Page', app: app),
+    home: MyHomePage(title: 'Recharge', app: app),
   ));
 }
 
@@ -40,39 +40,39 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  int _testSeconds;
-
   DatabaseReference locationsRef;
+  List locationsDescriptions = List();
+  Map locations = Map();
 
   void initState() {
     super.initState();
+    // fetch data from realtime database
     final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
-    database.reference().child('test_locations').once().then((DataSnapshot snapshot) {
+    database.reference().child('locations').once().then((DataSnapshot snapshot) {
       print('Connected to database and fetched ${snapshot.value}');
-    });
-  }
-
-  void _testMaps() async {
-    String apiKey = 'AIzaSyAwLF8Iff11hU55MulnjxMUUp3BdJfjtqs';
-    DistanceRequest test_request = DistanceRequest(
-      apiKey: apiKey,
-      origin: '33.688789,-117.707609',
-      destinations: '33.672206,-117.714971',
-    );
-    List distances = await test_request.fetchDistances();
-    setState(() {
-      _testSeconds = distances[0];
+      locationsDescriptions = snapshot.value;
+      print("printing locationsDescriptions");
+      print(locationsDescriptions);
+      assert(locationsDescriptions is List);
+      for (int i=0;i<locationsDescriptions.length;i++) {
+        Map row = locationsDescriptions[i];
+        if (locations.containsKey(row['category'])) {
+          locations[row['category']].add([row['latitude'], row['longitude']]);
+        } else {
+          locations[row['category']] = [[row['latitude'], row['longitude']]];
+        }
+      }
+      print("Printing locations map.");
+      print(locations);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
+      body: MapView(
+        locationsToDisplay: locations,
       ),
-      body: MapView(),
     );
   }
 }

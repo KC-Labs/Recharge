@@ -1,19 +1,54 @@
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:recharge/Assets/device_ratio.dart';
 import 'package:recharge/Assets/shadows.dart';
 import 'package:recharge/Assets/colors.dart';
 import 'package:recharge/Assets/my_flutter_app_icons.dart';
-import 'package:recharge/Pgaes/MapView.dart';
-import 'package:recharge/Pgaes/LocationListView.dart';
+import 'package:recharge/Assets/locations.dart';
+import 'package:recharge/Pages/MapView.dart';
+import 'package:recharge/Pages/LocationListView.dart';
 
 class TabBarPage extends StatefulWidget {
+  final FirebaseApp app;
+  TabBarPage({this.app});
+
   @override
-  _TabBarPageState createState() => _TabBarPageState();
+  _TabBarPageState createState() => _TabBarPageState(
+    app: app,
+  );
 }
 
 class _TabBarPageState extends State<TabBarPage> {
   bool isMapVisible = true;
+  DatabaseReference _locationsReference;
+  FirebaseApp app;
 
+  _TabBarPageState({this.app});
+
+  void initState() {
+    final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
+    database.reference().child('locations').once().then((DataSnapshot snapshot) {
+      print('Connected to database and fetched ${snapshot.value}');
+      List locationsDescriptions = List();
+      Map locations = Map();
+      locationsDescriptions = snapshot.value;
+      print("printing locationsDescriptions");
+      print(locationsDescriptions);
+      assert(locationsDescriptions is List);
+      for (int i=0;i<locationsDescriptions.length;i++) {
+        Map row = locationsDescriptions[i];
+        if (locations.containsKey(row['category'])) {
+          locations[row['category']].add([row['latitude'], row['longitude']]);
+        } else {
+          locations[row['category']] = [[row['latitude'], row['longitude']]];
+        }
+      }
+      print("Printing locations map.");
+      print(locations);
+    });
+
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

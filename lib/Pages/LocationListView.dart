@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:recharge/Assets/colors.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:recharge/Assets/locations.dart';
 import 'package:recharge/Assets/device_ratio.dart';
 import 'package:recharge/Assets/my_flutter_app_icons.dart';
 import 'package:recharge/Assets/shadows.dart';

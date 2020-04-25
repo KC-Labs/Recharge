@@ -1,0 +1,1 @@
+Map locationsTruth = Map();

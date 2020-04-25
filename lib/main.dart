@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 // custom modules
 import 'DistanceRequest.dart';
-import 'Map.dart';
+import 'MapView.dart';
 
 
 Future<void> main() async {
@@ -72,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Map(),
+      body: MapView(),
     );
   }
 }

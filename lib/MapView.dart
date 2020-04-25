@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class Map extends StatefulWidget {
+class MapView extends StatefulWidget {
   @override 
-  State<Map> createState() => MapState();
+  State<MapView> createState() => MapState();
 }
 
-class MapState extends State<Map> {
+class MapState extends State<MapView> {
   Completer<GoogleMapController> _controller = Completer();
 
   static final CameraPosition _defaultStart = CameraPosition(

@@ -42,7 +42,11 @@ class _LocationListViewState extends State<LocationListView> {
           color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(10)),
           boxShadow: cardShadow
+          
         ),
+        child: Center(child: 
+       Container()
+       )
         ),
     );
   },

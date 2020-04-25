@@ -29,4 +29,5 @@ class MyFlutterApp {
   static const IconData menu = IconData(0xe807, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData current_location = IconData(0xe808, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData map = IconData(0xe809, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData circle = IconData(0xe80c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

@@ -1,9 +1,15 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:recharge/Assets/device_ratio.dart';
+import 'package:recharge/Pgaes/TabBarPage.dart';
+import 'dart:ui';
+import 'package:flutter/services.dart';
+import 'package:recharge/Assets/colors.dart';
+
 
 // custom modules
-import 'DistanceRequest.dart';
+import 'package:recharge/Helpers/DistanceRequest.dart';
 
 
 Future<void> main() async {
@@ -25,6 +31,7 @@ Future<void> main() async {
     theme: ThemeData(
       primarySwatch: Colors.blue,
     ),
+    debugShowCheckedModeBanner: false,
     home: MyHomePage(title: 'Flutter Demo Home Page', app: app),
   ));
 }
@@ -50,6 +57,15 @@ class _MyHomePageState extends State<MyHomePage> {
     database.reference().child('test_locations').once().then((DataSnapshot snapshot) {
       print('Connected to database and fetched ${snapshot.value}');
     });
+
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+          statusBarColor: white, //top bar color
+          statusBarIconBrightness:
+            Brightness.light,
+          statusBarBrightness:  Brightness.light // Dark == white status bar -- for IOS.
+          ));
+
+
   }
 
   void _testMaps() async {
@@ -67,29 +83,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              '$_testSeconds',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _testMaps,
-        tooltip: 'Test Maps',
-        child: Icon(Icons.add),
-      ),
-    );
+    //initializing global variables to enable auto layout
+    currentWidth = MediaQuery.of(context).size.width;
+    currentHeight = MediaQuery.of(context).size.height;
+    widthRatio = MediaQuery.of(context).size.width / 375.0;
+    heightRatio = MediaQuery.of(context).size.height / 812.0;
+
+    return TabBarPage();
   }
 }

@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:recharge/Assets/device_ratio.dart';
-import 'package:recharge/Pgaes/TabBarPage.dart';
+import 'package:recharge/Pages/TabBarPage.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:recharge/Assets/colors.dart';
@@ -27,12 +27,12 @@ Future<void> main() async {
   );
   print('Firebaseapp initialized.');
   runApp(MaterialApp(
-    title: 'Flutter Demo',
+    title: 'Recharge',
     theme: ThemeData(
       primarySwatch: Colors.blue,
     ),
     debugShowCheckedModeBanner: false,
-    home: MyHomePage(title: 'Flutter Demo Home Page', app: app),
+    home: MyHomePage(title: 'Recharge', app: app),
   ));
 }
 
@@ -46,28 +46,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  int _testSeconds;
 
-  DatabaseReference locationsRef;
 
   void initState() {
     super.initState();
-    final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
-    database.reference().child('test_locations').once().then((DataSnapshot snapshot) {
-      print('Connected to database and fetched ${snapshot.value}');
-    });
-
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
           statusBarColor: white, //top bar color
           statusBarIconBrightness:
             Brightness.light,
           statusBarBrightness:  Brightness.light // Dark == white status bar -- for IOS.
           ));
-
-
   }
-
+  /*
   void _testMaps() async {
     String apiKey = 'AIzaSyAwLF8Iff11hU55MulnjxMUUp3BdJfjtqs';
     DistanceRequest test_request = DistanceRequest(
@@ -80,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _testSeconds = distances[0];
     });
   }
-
+  */
   @override
   Widget build(BuildContext context) {
     //initializing global variables to enable auto layout
@@ -89,6 +79,8 @@ class _MyHomePageState extends State<MyHomePage> {
     widthRatio = MediaQuery.of(context).size.width / 375.0;
     heightRatio = MediaQuery.of(context).size.height / 812.0;
 
-    return TabBarPage();
+    return TabBarPage(
+      app: widget.app,
+    );
   }
 }

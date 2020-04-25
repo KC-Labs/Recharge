@@ -37,6 +37,16 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  DatabaseReference locationsRef;
+
+  void initState() {
+    super.initState();
+    final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
+    database.reference().child('test_locations').once().then((DataSnapshot snapshot) {
+      print('Connected to database and fetched ${snapshot.value}');
+    });
+  }
+
   void _incrementCounter() {
     setState(() {
       _counter++;

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 // custom modules
 import 'DistanceRequest.dart';
+import 'Map.dart';
 
 
 Future<void> main() async {
@@ -71,25 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              '$_testSeconds',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _testMaps,
-        tooltip: 'Test Maps',
-        child: Icon(Icons.add),
-      ),
+      body: Map(),
     );
   }
 }

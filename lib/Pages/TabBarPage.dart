@@ -8,6 +8,7 @@ import 'package:recharge/Assets/my_flutter_app_icons.dart';
 import 'package:recharge/Assets/locations.dart';
 import 'package:recharge/Pages/MapView.dart';
 import 'package:recharge/Pages/LocationListView.dart';
+import 'package:recharge/Pages/SideMenu.dart';
 
 class TabBarPage extends StatefulWidget {
   final FirebaseApp app;
@@ -23,41 +24,22 @@ class _TabBarPageState extends State<TabBarPage> {
   bool isMapVisible = true;
   DatabaseReference _locationsReference;
   FirebaseApp app;
-
+  Map locationsData = Map();
   _TabBarPageState({this.app});
+   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
 
-  void initState() {
-    final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
-    database.reference().child('locations').once().then((DataSnapshot snapshot) {
-      print('Connected to database and fetched ${snapshot.value}');
-      List locationsDescriptions = List();
-      Map locations = Map();
-      locationsDescriptions = snapshot.value;
-      print("printing locationsDescriptions");
-      print(locationsDescriptions);
-      assert(locationsDescriptions is List);
-      for (int i=0;i<locationsDescriptions.length;i++) {
-        Map row = locationsDescriptions[i];
-        if (locations.containsKey(row['category'])) {
-          locations[row['category']].add([row['latitude'], row['longitude']]);
-        } else {
-          locations[row['category']] = [[row['latitude'], row['longitude']]];
-        }
-      }
-      print("Printing locations map.");
-      print(locations);
-    });
-
-  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        drawer: SideMenu(),
+        key: _scaffoldKey,
         //F6F9FF
         backgroundColor: Color(0xffF6F9FF),
         body: Stack(
 
           children: <Widget>[
-           (isMapVisible) ? MapView() : LocationListView(),
+           (isMapVisible) ? MapView(app: widget.app) : LocationListView(),
             Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
@@ -126,6 +108,38 @@ class _TabBarPageState extends State<TabBarPage> {
                         ),
                       ],
                     ))),
+                    (isMapVisible) ?
+                        Positioned(
+              left: 30,
+              bottom: 225,
+              child: Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                      color: white,
+                      borderRadius: BorderRadius.all(Radius.circular(32)),
+                      boxShadow: buttonShadow),
+                  child: ClipOval(
+                    child: Material(
+                      elevation: 8.0,
+                      color: white,
+                      // button color
+                      child: InkWell(
+                        splashColor: gray, // inkwell color
+                        child: SizedBox(
+                            width: 56,
+                            height: 56,
+                            child: Icon(
+                              MyFlutterApp.menu,
+                              color: mainColor,
+                            )),
+                        onTap: () {
+                          _scaffoldKey.currentState.openDrawer();
+                        },
+                      ),
+                    ),
+                  )),
+            ) : Container()
           ],
         ));
   }

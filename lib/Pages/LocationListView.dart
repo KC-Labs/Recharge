@@ -46,7 +46,7 @@ class _LocationListViewState extends State<LocationListView> {
     return textResponses;
   }
   
-  List _calculateData() {
+  Future<List> _calculateData() async {
     List location_distances = ['${dataTruth[0]['latitude']},${dataTruth[0]['longitude']}'];
     for (int i=1;i<dataTruth.length;i++) {
       location_distances.add('${dataTruth[i]['latitude']},${dataTruth[i]['longitude']}');
@@ -54,18 +54,19 @@ class _LocationListViewState extends State<LocationListView> {
     return [currentLocationTruth, location_distances];
   }
 
-  Future<void> master_calculate_distance() async {
-    List calculatedData = _calculateData();
+  Future<List> master_calculate_distance() async {
+    List calculatedData = await _calculateData();
     List responses = await _calculateDistances(calculatedData[0], calculatedData[1]);
-    setState(() {
-      timesToLocations = responses;
-    });
+    //setState(() {
+    //  timesToLocations = responses;
+   // });
+   return responses;
   }
   
   @override
   void initState() {
     super.initState();
-    master_calculate_distance();
+   master_calculate_distance();
     _controller = new SwiperController();
     _verticalController = new SwiperController();
   }
@@ -85,7 +86,14 @@ class _LocationListViewState extends State<LocationListView> {
      backgroundColor: Color(0xffF6F9FF),
      body: Stack(
        children: <Widget>[
-          Padding(
+          FutureBuilder(
+                        future: master_calculate_distance(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.none && snapshot.hasData == false) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                      else {
+                           return Padding(
           padding: EdgeInsets.only(top: 160),
           child: Container(
               width: currentWidth,
@@ -93,7 +101,7 @@ class _LocationListViewState extends State<LocationListView> {
             child: ConstrainedBox(
                       constraints: BoxConstraints(
                           maxHeight: 700,),
-                      child: ListView.builder(
+                      child:  ListView.builder(
                         itemCount: dataTruth.length, // array.count,
                         itemBuilder: (BuildContext context, int index) {
                           //index variable 
@@ -152,7 +160,24 @@ class _LocationListViewState extends State<LocationListView> {
                                                 fontFamily: 'NunitoRegular',
                                                 fontSize: 16 * widthRatio)),
                                       ),
-                                      Text("${timesToLocations[index]}", style: TextStyle(fontSize: 13, fontFamily: 'NunitoRegular', color: gray)),
+                                      FutureBuilder(
+                                        future: master_calculate_distance(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState == ConnectionState.done) {
+                                            if (snapshot.hasData) {
+                                              return   Text(
+                                        "${snapshot.data[index]}",
+                                         style: TextStyle(fontSize: 13, fontFamily: 'NunitoRegular', color: gray));
+                                            }
+                                          } else {
+                                            return SizedBox(
+                                              width: 20, height: 20,
+                                              child: CircularProgressIndicator());
+                                          }
+                                            return Container();
+                                        },
+                                      )
+                                    
                                     ],
                                   ),
                                   Row(
@@ -190,8 +215,15 @@ class _LocationListViewState extends State<LocationListView> {
                            
                         }
                       )
+                      
+                     
+                      
+                     
                       )
-            )),
+            ));
+                        } 
+                      }),
+          
           
         
         Padding(

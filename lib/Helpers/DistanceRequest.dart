@@ -34,7 +34,7 @@ class DistanceRequest {
   }
 
   List processResponse(String jsonString) {
-   // print('jsonString: ' + jsonString);
+    print('jsonString: ' + jsonString);
     List<String> totalDistanceTimes = List<String>();
     var distance_json = jsonDecode(jsonString);
     assert(distance_json is Map);

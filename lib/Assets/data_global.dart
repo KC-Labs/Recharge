@@ -6,7 +6,8 @@ Map coordsToIndex = Map();
 List dataTruth = List();
 List currentLocationTruth = List();
 List pinAddressTruth = List();
-const String apiKeyTruth = 'AIzaSyAwLF8Iff11hU55MulnjxMUUp3BdJfjtqs';
+const String apiKeyFirebase = 'AIzaSyCJhApWtsNlhMatsuOkQTMBLcsvy3S1qr8';
+const String apiKeyTruth = 'AIzaSyC5Fk66xYyWRY1CLI1eL8vwboCmvoyoTDQ';
 
 BitmapDescriptor foodIconTruth;
 BitmapDescriptor drinksIconTruth;

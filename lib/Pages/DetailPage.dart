@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:recharge/Assets/colors.dart';
+import 'package:recharge/Assets/data_global.dart';
 import 'package:recharge/Assets/fonts.dart';
 import 'package:recharge/Assets/my_flutter_app_icons.dart';
 import 'package:flutter/services.dart';
@@ -8,13 +9,17 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:recharge/Assets/shadows.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'dart:async';
 
 class DetailPage extends StatefulWidget {
-   final String name;
+  final String name;
   final String offerings;
   final int openTime;
   final int closeTime;
   final String address;
+  final LatLng coords;
+  final LatLng markerCoords;
+  final String category;
 
 
   const DetailPage(
@@ -24,6 +29,9 @@ class DetailPage extends StatefulWidget {
       this.openTime,
       this.closeTime,
       this.address,
+      this.coords,
+      this.category,
+      this.markerCoords,
       })
       : super(key: key);
   @override
@@ -31,6 +39,9 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
+
+  Set<Marker> _markers = {};
+  Completer<GoogleMapController> _controller = Completer();
 
   String _hours(int open, int close) {
     //THIS IS A SHORT CUT, NEED TO REWRITE LATER
@@ -141,15 +152,33 @@ class _DetailPageState extends State<DetailPage> {
                         border: Border.all(color: white, width: 5)),
                     child: ClipOval(
                       child: GoogleMap(
-                        mapType: MapType.normal,
-                        initialCameraPosition:
-                            // ********** ADJUST CAMERA POSITIONS HERE **************
-                            CameraPosition(
-                          target: LatLng(33.693139, -117.789026),
+                        initialCameraPosition: CameraPosition(
+                          target: widget.coords,
                           bearing: 0,
                           tilt: 0,
                           zoom: 12,
                         ),
+                        mapType: MapType.normal,
+                        rotateGesturesEnabled: false, 
+                        scrollGesturesEnabled: false, 
+                        zoomControlsEnabled: false, 
+                        zoomGesturesEnabled: false, 
+                        tiltGesturesEnabled: false,
+                        myLocationButtonEnabled: false,
+                        markers: _markers,
+                        onMapCreated: (GoogleMapController controller) {
+                          _controller.complete(controller);
+
+                          setState(() {
+                            _markers.add(
+                              Marker(
+                                markerId: MarkerId('focusMarker'),
+                                position: widget.markerCoords,
+                                icon: widget.category == "Food" ? foodIconTruth : (widget.category == "Drinks" ? drinksIconTruth : groceryIconTruth),
+                              )
+                            );
+                          });
+                        },
                       ),
                     ),
                   )),

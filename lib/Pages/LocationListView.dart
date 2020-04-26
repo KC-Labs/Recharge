@@ -10,6 +10,7 @@ import 'package:recharge/Helpers/FadeIn.dart';
 import 'package:recharge/Pages/DetailPage.dart';
 import 'package:recharge/Assets/data_global.dart';
 import 'package:recharge/Helpers/DistanceRequest.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 
 
@@ -26,6 +27,8 @@ class _LocationListViewState extends State<LocationListView> {
 
   DistanceRequest request;
   List timesToLocations;
+
+  double _centerMarkerOffset = 0.0049;
 
   Future<List> _calculateDistances(List origin, List destinations) async {
     //api key manually set in global
@@ -217,6 +220,9 @@ class _LocationListViewState extends State<LocationListView> {
                                   openTime: dataTruth[index]['open_time'],
                                   closeTime: dataTruth[index]['close_time'],
                                   address: pinAddressTruth[index],
+                                  coords: LatLng(dataTruth[index]['latitude'] + _centerMarkerOffset, dataTruth[index]['longitude']),
+                                  markerCoords: LatLng(dataTruth[index]['latitude'], dataTruth[index]['longitude']),
+                                  category: dataTruth[index]['category'],
                                 ))); //present next screen
                               }
                               )));

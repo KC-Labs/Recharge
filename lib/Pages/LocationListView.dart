@@ -32,8 +32,6 @@ class _LocationListViewState extends State<LocationListView> {
   List timesToLocations;
   int currentPageIndex = 0;
 
-  double _centerMarkerOffset = 0.0049;
-
   Future<List> _calculateDistances(List origin, List destinations) async {
     //api key manually set in global
     String origin_string = '${origin[0]},${origin[1]}';

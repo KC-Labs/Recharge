@@ -15,6 +15,8 @@ import 'package:recharge/Helpers/FadeIn.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:recharge/Pages/DetailPage.dart';
 import 'package:recharge/Helpers/Zoom.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
 
@@ -41,6 +43,8 @@ class _MapViewState extends State<MapView> {
 
   bool movingToPin = false;
   bool displayInfo = false;
+
+  Map currentInfo = Map();
 
   Set<Marker> _markers = Set<Marker>();
 
@@ -88,6 +92,19 @@ class _MapViewState extends State<MapView> {
     Map locations = Map();
     locationsDescriptions = snapshot.value;
     dataTruth = snapshot.value;
+
+    Map generatedCoordsToIndex = Map();
+    for (int i=0;i<dataTruth.length;i++) {
+      var instance = dataTruth[i];
+      double lat = instance["latitude"];
+      double long = instance["longitude"];
+      generatedCoordsToIndex[lat+long] = i;
+    }
+
+    coordsToIndex = generatedCoordsToIndex;
+    print('generatedCoordsToIndex finished.');
+    print(generatedCoordsToIndex);
+
     print("printing locationsDescriptions");
     print(locationsDescriptions);
     assert(locationsDescriptions is List);
@@ -108,6 +125,21 @@ class _MapViewState extends State<MapView> {
     print('FINISHED RETRIEVING LOCATION DATA FROM DATABASE');
   }
 
+  Future<String> _coordToAddress(String coordinates) async {
+    String request_link = 'https://maps.googleapis.com/maps/api/geocode/json?';
+    request_link = request_link + 'latlng=' + coordinates + '&key=' + apiKeyTruth;
+    final response = await http.get(request_link);
+    if (response.statusCode == 200) {
+      var raw_return = jsonDecode(response.body);
+      print('raw_return');
+      print(raw_return);
+      var formatted_address = raw_return["results"][0]["formatted_address"];
+      return formatted_address;
+    } else {
+      throw Exception('Failed to load distance data.');
+    }
+  }
+
   Set<Marker> _setupMarkers() {
     // grabs the global locationsTruth to generate
     Set<Marker> markersToReturn = Set<Marker>();
@@ -125,51 +157,53 @@ class _MapViewState extends State<MapView> {
       for (int i = 0; i < coords.length; i++) {
         if (category == 'Food') {
           markersToReturn.add(Marker(
-              markerId: MarkerId(category + '$i'),
-              position: LatLng(coords[i][0], coords[i][1]),
-              icon: foodIcon,
-              onTap: ()  {
-                print('coords[i][0]');
-                print(coords[i][0]);
-                print('offset applied');
-                print(coords[i][0] + latOffset);
-                 _goToPosition(CameraPosition(
-                  target: LatLng(coords[i][0] + latOffset, coords[i][1]),
-                  zoom: markerZoom,
-                ));
-                setState(() {
-                  movingToPin = true;
-                });
-               
-              }));
+            markerId: MarkerId(category + '$i'),
+            position: LatLng(coords[i][0], coords[i][1]),
+            icon: foodIcon,
+            onTap: ()  {
+              _prepareInfo(coords[i][0], coords[i][1]);
+              print('coords[i][0]');
+              print(coords[i][0]);
+              print('offset applied');
+              print(coords[i][0] + latOffset);
+                _goToPosition(CameraPosition(
+                target: LatLng(coords[i][0] + latOffset, coords[i][1]),
+                zoom: markerZoom,
+              ));
+              setState(() {
+                movingToPin = true;
+              });
+            }));
         } else if (category == "Drinks") {
           markersToReturn.add(Marker(
-              markerId: MarkerId(category + '$i'),
-              position: LatLng(coords[i][0], coords[i][1]),
-              icon: drinksIcon,
-              onTap: () {
-                _goToPosition(CameraPosition(
-                  target: LatLng(coords[i][0] + latOffset, coords[i][1]),
-                  zoom: markerZoom,
-                ));
-                setState(() {
-                  movingToPin = true;
-                });
-              }));
+            markerId: MarkerId(category + '$i'),
+            position: LatLng(coords[i][0], coords[i][1]),
+            icon: drinksIcon,
+            onTap: () {
+              _prepareInfo(coords[i][0], coords[i][1]);
+              _goToPosition(CameraPosition(
+                target: LatLng(coords[i][0] + latOffset, coords[i][1]),
+                zoom: markerZoom,
+              ));
+              setState(() {
+                movingToPin = true;
+              });
+            }));
         } else if (category == "Grocery") {
           markersToReturn.add(Marker(
-              markerId: MarkerId(category + '$i'),
-              position: LatLng(coords[i][0], coords[i][1]),
-              icon: groceryIcon,
-              onTap: () {
-                _goToPosition(CameraPosition(
-                  target: LatLng(coords[i][0] + latOffset, coords[i][1]),
-                  zoom: markerZoom,
-                ));
-                setState(() {
-                  movingToPin = true;
-                });
-              }));
+            markerId: MarkerId(category + '$i'),
+            position: LatLng(coords[i][0], coords[i][1]),
+            icon: groceryIcon,
+            onTap: () {
+              _prepareInfo(coords[i][0], coords[i][1]);
+              _goToPosition(CameraPosition(
+                target: LatLng(coords[i][0] + latOffset, coords[i][1]),
+                zoom: markerZoom,
+              ));
+              setState(() {
+                movingToPin = true;
+              });
+            }));
         }
       }
     });
@@ -184,6 +218,7 @@ class _MapViewState extends State<MapView> {
     print('animating camera to this position.');
     print(newPosition.target);
     mapController.animateCamera(CameraUpdate.newCameraPosition(newPosition));
+
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -209,6 +244,20 @@ class _MapViewState extends State<MapView> {
         displayInfo = false;
       });
     }
+  }
+
+  void _prepareInfo(double latitude, double longitude) {
+    var index = coordsToIndex[latitude+longitude];
+    print('sum');
+    print(latitude+longitude);
+    print('reverse keyed index');
+    print(index);
+    print('coordsToIndex');
+    print(coordsToIndex);
+    Map data_row = dataTruth[index];
+    setState(() {
+      currentInfo = data_row;
+    });
   }
 
   void _onMapTap(LatLng tapLocation) {
@@ -388,7 +437,7 @@ class _MapViewState extends State<MapView> {
                             child: Icon(MyFlutterApp.circle,
                                 size: 15, color: mainColor),
                           ),
-                          AutoSizeText("McDonald's",
+                          AutoSizeText(currentInfo["name"], // NAME ENTRY HERE
                               minFontSize: 12,
                               maxLines: 1,
                               style: TextStyle(
@@ -403,7 +452,7 @@ class _MapViewState extends State<MapView> {
                       padding: const EdgeInsets.only(top: 2, left: 40.0),
                       child: Row(
                         children: <Widget>[
-                          Text("Open Now",
+                          Text("Open Now", // IMPLEMENT TIMES OPEN
                               style: TextStyle(
                                   fontSize: 12,
                                   fontFamily: 'NunitoRegular',
@@ -415,7 +464,7 @@ class _MapViewState extends State<MapView> {
                       padding: const EdgeInsets.only(top: 2, left: 20.0),
                       child: Row(
                         children: <Widget>[
-                          AutoSizeText("Free Food & Drinks.",
+                          AutoSizeText(currentInfo["summary"],
                               maxLines: 1,
                               minFontSize: 8,
                               style: TextStyle(
@@ -443,8 +492,21 @@ class _MapViewState extends State<MapView> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(
                               Radius.circular(35))),
-                      onPressed: () {
-                         Navigator.push(context, ScaleRoute(page: DetailPage()));
+                      onPressed: () async {
+                        var printable_coordinates = await _coordToAddress('${currentInfo['latitude']},${currentInfo['longitude']}');
+                        print('printable_coordinates');
+                        print(printable_coordinates);
+                        Navigator.push(context, ScaleRoute(page: DetailPage(
+                          name: currentInfo["name"],
+                          offerings: currentInfo["offerings"], 
+                          openTime: currentInfo["open_time"], 
+                          closeTime: currentInfo["close_time"], 
+                          address: printable_coordinates, 
+                          category: currentInfo["category"], 
+                          coords: LatLng(currentInfo['latitude'] + centerMarkerOffset, currentInfo['longitude']),
+                          markerCoords: LatLng(currentInfo['latitude'], currentInfo['longitude']),
+                        )));
+                        
                       },
                       child: Center(
                         child: Text(

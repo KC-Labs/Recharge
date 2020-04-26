@@ -6,13 +6,43 @@ import 'package:flutter/services.dart';
 import 'package:recharge/Assets/device_ratio.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:recharge/Assets/shadows.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class DetailPage extends StatefulWidget {
+   final String name;
+  final String offerings;
+  final int openTime;
+  final int closeTime;
+
+
+  const DetailPage(
+      {Key key,
+      @required this.name,
+      this.offerings,
+      this.openTime,
+      this.closeTime,
+      })
+      : super(key: key);
   @override
   _DetailPageState createState() => _DetailPageState();
 }
 
 class _DetailPageState extends State<DetailPage> {
+
+  String _hours(int open, int close) {
+    //THIS IS A SHORT CUT, NEED TO REWRITE LATER
+    if (open == 0 && close == 0) {
+      return 'Open 24 Hours'; 
+    } else {
+      String openNum = '${(open <= 12) ? open : (open - 12) }';
+      String openAP = (open <= 12) ? 'AM' : 'PM';
+      String closeNum = '${(close <= 12) ? close : (close - 12) }';
+      String closeAP = (close <= 12) ? 'AM' : 'PM';
+      return '$openNum $openAP - $closeNum $closeAP';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -55,15 +85,18 @@ class _DetailPageState extends State<DetailPage> {
                       ),
                     ),
                     Spacer(),
-                    Text("McDonald's",
+                    Text(widget.name,
                         style: TextStyle(
                             fontSize: 22,
                             fontFamily: 'NunitoSemiBold',
                             color: white)),
                     Spacer(),
                     Padding(
-                      padding: EdgeInsets.only(right: 35.0),
-                      child: Icon(MyFlutterApp.call, color: white, size: 30),
+                      padding: EdgeInsets.only(right: 25.0),
+                      child: IconButton(icon: Icon(MyFlutterApp.call, color: white, size: 30),
+                      onPressed: () {
+                        // implement call
+                      },),
                     ),
                   ],
                 ),
@@ -76,7 +109,7 @@ class _DetailPageState extends State<DetailPage> {
                       fontSize: 22, fontFamily: "NunitoBold", color: white),
                 ),
               ),
-              Text("6:00 AM - 6:00 PM",
+              Text(_hours(widget.openTime, widget.closeTime),
                   style: TextStyle(
                       fontSize: 24, fontFamily: "NunitoRegular", color: white)),
               Padding(
@@ -128,10 +161,13 @@ class _DetailPageState extends State<DetailPage> {
               ),
               SizedBox(
                   width: currentWidth * 0.75,
-                  child: Text("Free food and drinks for medical workers, delivery workers, grocery store employees.",
+                  child: AutoSizeText(widget.offerings,
                       textAlign: TextAlign.center,
+                      maxLines: 5,
+                      minFontSize: 12,
                       style: TextStyle(
                           fontSize: 19,
+                          
                           fontFamily: "NunitoRegular",
                           color: white))), 
               Padding(

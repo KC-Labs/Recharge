@@ -7,7 +7,7 @@ import 'package:recharge/Assets/shadows.dart';
 import 'package:recharge/Assets/fonts.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:recharge/Helpers/FadeIn.dart';
-import 'package:recharge/Pages/DetailPage.dart';
+import 'package:recharge/Pages/DetailListPage.dart';
 import 'package:recharge/Assets/data_global.dart';
 import 'package:recharge/Helpers/DistanceRequest.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -456,10 +456,11 @@ class _LocationListState extends State<LocationList> {
                                             ],
                                           ),
                                           onPressed: () {
+                                        
                                             Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (BuildContext context) => DetailPage(
+                                                    builder: (BuildContext context) => DetailListPage(
                                                         name: widget.finalList[
                                                             index]['name'],
                                                         offerings: widget

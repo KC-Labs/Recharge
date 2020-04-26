@@ -23,33 +23,12 @@ class TabBarPage extends StatefulWidget {
 class _TabBarPageState extends State<TabBarPage> {
   bool isMapVisible = true;
   DatabaseReference _locationsReference;
-    FirebaseApp app;
+  FirebaseApp app;
+  Map locationsData = Map();
   _TabBarPageState({this.app});
    GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
 
-  void initState() {
-    final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
-    database.reference().child('locations').once().then((DataSnapshot snapshot) {
-      print('Connected to database and fetched ${snapshot.value}');
-      List locationsDescriptions = List();
-      Map locations = Map();
-      locationsDescriptions = snapshot.value;
-      print("printing locationsDescriptions");
-      print(locationsDescriptions);
-      assert(locationsDescriptions is List);
-      for (int i=0;i<locationsDescriptions.length;i++) {
-        Map row = locationsDescriptions[i];
-        if (locations.containsKey(row['category'])) {
-          locations[row['category']].add([row['latitude'], row['longitude']]);
-        } else {
-          locations[row['category']] = [[row['latitude'], row['longitude']]];
-        }
-      }
-      print("Printing locations map.");
-      print(locations);
-    });
-
-  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +39,7 @@ class _TabBarPageState extends State<TabBarPage> {
         body: Stack(
 
           children: <Widget>[
-           (isMapVisible) ? MapView() : LocationListView(),
+           (isMapVisible) ? MapView(app: widget.app) : LocationListView(),
             Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(

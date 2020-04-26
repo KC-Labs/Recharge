@@ -1,7 +1,11 @@
+import 'dart:io';
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:recharge/Assets/colors.dart';
 import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:recharge/Assets/device_ratio.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -11,24 +15,79 @@ import 'package:recharge/Assets/my_flutter_app_icons.dart';
 import 'package:simple_animations/simple_animations.dart';
 import 'package:recharge/Helpers/FadeIn.dart';
 
-
 class MapView extends StatefulWidget {
-  Map locationsToDisplay = Map();
-
-  MapView({this.locationsToDisplay});
-
+  FirebaseApp app;
+  MapView({this.app});
   @override
   _MapViewState createState() => _MapViewState(
-        locationsToDisplay: locationsToDisplay,
-      );
+    app: app,
+  );
 }
 
 class _MapViewState extends State<MapView> {
   Completer<GoogleMapController> _controller = Completer();
-  Map locationsToDisplay = Map();
+  FirebaseApp app; 
+  Map locationsData = Map();
+  bool wait_before_return = true;
+  bool markers_ready = false;
+  
   SwiperController _swipeController;
-  _MapViewState({this.locationsToDisplay});
+  
+  BitmapDescriptor foodIcon;
+  BitmapDescriptor drinksIcon;
+  BitmapDescriptor groceryIcon;
 
+  Set<Marker> _markers = Set<Marker>();
+  
+  _MapViewState({this.app});
+
+  Future<void> master_markers_setup() async {
+    await retrieveLocationData();
+    await loadMarkerIcons();
+    Set<Marker> markersToSubmit = _setupMarkers();
+    setState(() {
+      _markers = markersToSubmit;
+    });
+  }
+
+  Future<void> loadMarkerIcons() async {
+    var foodValue = await BitmapDescriptor.fromAssetImage(ImageConfiguration(devicePixelRatio: 2.5), 'image_assets/pin_food.png');
+    foodIcon = foodValue;
+    var drinksValue = await BitmapDescriptor.fromAssetImage(ImageConfiguration(devicePixelRatio: 2.5), 'image_assets/pin_drinks.png');
+    drinksIcon = drinksValue;
+    var groceryValue = await BitmapDescriptor.fromAssetImage(ImageConfiguration(devicePixelRatio: 2.5), 'image_assets/pin_grocery.png');
+    groceryIcon = groceryValue;
+  }
+
+  void initState() {
+    master_markers_setup();
+  }
+
+  Future<void> retrieveLocationData() async {
+    final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
+    DataSnapshot snapshot = await database.reference().child('locations').once();
+    print('Connected to database and fetched ${snapshot.value}');
+    List locationsDescriptions = List();
+    Map locations = Map();
+    locationsDescriptions = snapshot.value;
+    print("printing locationsDescriptions");
+    print(locationsDescriptions);
+    assert(locationsDescriptions is List);
+    for (int i=0;i<locationsDescriptions.length;i++) {
+      Map row = locationsDescriptions[i];
+      if (locations.containsKey(row['category'])) {
+        locations[row['category']].add([row['latitude'], row['longitude']]);
+      } else {
+        locations[row['category']] = [[row['latitude'], row['longitude']]];
+      }
+    }
+    print("Printing locations map.");
+    print(locations);
+    locationsTruth = locations;
+    locationsData = locations;
+    print('FINISHED RETRIEVING LOCATION DATA FROM DATABASE');
+  }
+  
 
   static final CameraPosition _defaultStart = CameraPosition(
     target: LatLng(33.693139, -117.789026),
@@ -37,12 +96,54 @@ class _MapViewState extends State<MapView> {
     zoom: 12,
   );
 
+  Set<Marker> _setupMarkers() {
+    // grabs the global locationsTruth to generate
+    Set<Marker> markersToReturn = Set<Marker>();
+    print('_setupMarkers is running.');
+    print('locationsData.');
+    print(locationsData);
+    // assuming global locationsTruth is set. 
+    locationsData.forEach((category, coords) {
+      print('printing [category, coords]');
+      print([category, coords]);
+      print('printing coords.length.');
+      print(coords.length);
+      for (int i=0;i<coords.length;i++) {
+        if (category == 'Food') {
+          markersToReturn.add(
+            Marker(
+              markerId: MarkerId(category + '$i'),
+              position: LatLng(coords[i][0], coords[i][1]),
+              icon: foodIcon,
+            )
+          );
+        } else if (category == "Drinks") {
+          markersToReturn.add(
+            Marker(
+              markerId: MarkerId(category + '$i'),
+              position: LatLng(coords[i][0], coords[i][1]),
+              icon: drinksIcon,
+            )
+          );
+        } else if (category == "Grocery") {
+          markersToReturn.add(
+            Marker(
+              markerId: MarkerId(category + '$i'),
+              position: LatLng(coords[i][0], coords[i][1]),
+              icon: groceryIcon,
+            )
+          );
+        }
+      }
+    });
+    return markersToReturn;
+  }
+
   void _onTap(int index) {
     _swipeController.move(index, animation: true);
   }
 
-  
-
+ 
   @override
   void initState() {
     super.initState();
@@ -52,14 +153,15 @@ class _MapViewState extends State<MapView> {
   Widget build(BuildContext context) {
     _swipeController.index = 0;
     return Scaffold(
-      
         body: Stack(
           children: <Widget>[
             GoogleMap(
               mapType: MapType.normal,
+              markers: _markers,
               initialCameraPosition: _defaultStart,
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
+                setState(() {});
               },
             ),
             Padding(

@@ -8,6 +8,7 @@ import 'package:recharge/Assets/my_flutter_app_icons.dart';
 import 'package:recharge/Assets/locations.dart';
 import 'package:recharge/Pages/MapView.dart';
 import 'package:recharge/Pages/LocationListView.dart';
+import 'package:recharge/Pages/SideMenu.dart';
 
 class TabBarPage extends StatefulWidget {
   final FirebaseApp app;
@@ -22,9 +23,9 @@ class TabBarPage extends StatefulWidget {
 class _TabBarPageState extends State<TabBarPage> {
   bool isMapVisible = true;
   DatabaseReference _locationsReference;
-  FirebaseApp app;
-
+    FirebaseApp app;
   _TabBarPageState({this.app});
+   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
 
   void initState() {
     final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
@@ -52,6 +53,8 @@ class _TabBarPageState extends State<TabBarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        drawer: SideMenu(),
+        key: _scaffoldKey,
         //F6F9FF
         backgroundColor: Color(0xffF6F9FF),
         body: Stack(
@@ -126,6 +129,38 @@ class _TabBarPageState extends State<TabBarPage> {
                         ),
                       ],
                     ))),
+                    (isMapVisible) ?
+                        Positioned(
+              left: 30,
+              bottom: 225,
+              child: Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                      color: white,
+                      borderRadius: BorderRadius.all(Radius.circular(32)),
+                      boxShadow: buttonShadow),
+                  child: ClipOval(
+                    child: Material(
+                      elevation: 8.0,
+                      color: white,
+                      // button color
+                      child: InkWell(
+                        splashColor: gray, // inkwell color
+                        child: SizedBox(
+                            width: 56,
+                            height: 56,
+                            child: Icon(
+                              MyFlutterApp.menu,
+                              color: mainColor,
+                            )),
+                        onTap: () {
+                          _scaffoldKey.currentState.openDrawer();
+                        },
+                      ),
+                    ),
+                  )),
+            ) : Container()
           ],
         ));
   }

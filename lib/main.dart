@@ -6,7 +6,7 @@ import 'package:recharge/Pages/TabBarPage.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:recharge/Assets/colors.dart';
-
+import 'package:recharge/Assets/cloudInfo.dart';
 
 import 'package:recharge/Helpers/DistanceRequest.dart';
 import 'package:recharge/Assets/data_global.dart';
@@ -16,10 +16,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   String name = 'recharge';
   FirebaseOptions options = const FirebaseOptions(
-    googleAppID: '1:754665357402:ios:d8d5c9873297796c589863',
-    gcmSenderID: '754665357402',
+    googleAppID:  googleAppID,
+    gcmSenderID: gcmSenderID,
     apiKey: apiKeyFirebase,
-    databaseURL: 'https://recharge-38fab.firebaseio.com',
+    databaseURL: databaseURL,
   );
   final FirebaseApp app = await FirebaseApp.configure(
       name: name, 

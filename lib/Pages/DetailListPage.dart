@@ -13,6 +13,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:maps_launcher/maps_launcher.dart';
+import 'package:recharge/Assets/cloudInfo.dart';
 
 
 class DetailListPage extends StatefulWidget {

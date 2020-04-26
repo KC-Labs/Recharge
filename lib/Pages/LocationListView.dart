@@ -209,7 +209,12 @@ class _LocationListViewState extends State<LocationListView> {
                                 
                               ),
                               onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => DetailPage())); //present next screen
+                                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => DetailPage(
+                                  name: dataTruth[index]['name'],
+                                  offerings: dataTruth[index]['offerings'],
+                                  openTime: dataTruth[index]['open_time'],
+                                  closeTime: dataTruth[index]['close_time']
+                                ))); //present next screen
                               }
                               )));
                            

@@ -39,7 +39,8 @@ class _MapViewState extends State<MapView> {
   BitmapDescriptor drinksIcon;
   BitmapDescriptor groceryIcon;
 
-  bool pinTapped = false;
+  bool movingToPin = false;
+  bool displayInfo = false;
 
   Set<Marker> _markers = Set<Marker>();
 
@@ -134,7 +135,7 @@ class _MapViewState extends State<MapView> {
                   zoom: markerZoom,
                 ));
                 setState(() {
-                   pinTapped = true;
+                  movingToPin = true;
                 });
                
               }));
@@ -148,8 +149,8 @@ class _MapViewState extends State<MapView> {
                   target: LatLng(coords[i][0] + latOffset, coords[i][1]),
                   zoom: markerZoom,
                 ));
-                  setState(() {
-                   pinTapped = true;
+                setState(() {
+                  movingToPin = true;
                 });
               }));
         } else if (category == "Grocery") {
@@ -162,8 +163,8 @@ class _MapViewState extends State<MapView> {
                   target: LatLng(coords[i][0] + latOffset, coords[i][1]),
                   zoom: markerZoom,
                 ));
-                  setState(() {
-                   pinTapped = true;
+                setState(() {
+                  movingToPin = true;
                 });
               }));
         }
@@ -193,6 +194,27 @@ class _MapViewState extends State<MapView> {
     print(currentLocationTruth);
   }
 
+  void _cameraMoveStarted() {
+    _updateLocation();
+    if (movingToPin) {
+      setState(() {
+        displayInfo = true;
+        movingToPin = false;
+      });
+    } else {
+      setState(() {
+        displayInfo = false;
+      });
+    }
+  }
+
+  void _onMapTap(LatLng tapLocation) {
+    setState(() {
+      movingToPin = false;
+      displayInfo = false;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -208,7 +230,7 @@ class _MapViewState extends State<MapView> {
 
           children: <Widget>[
             GoogleMap(
-              onCameraMoveStarted: _updateLocation,
+              onCameraMoveStarted: _cameraMoveStarted,
               mapType: MapType.normal,
               markers: _markers,
               initialCameraPosition: _defaultStart,
@@ -217,6 +239,7 @@ class _MapViewState extends State<MapView> {
                 setState(() {});
               },
               myLocationEnabled: true,
+              onTap: _onMapTap,
             ),
             Padding(
               padding: EdgeInsets.only(top: 30.0),
@@ -342,7 +365,7 @@ class _MapViewState extends State<MapView> {
                 ),
               )),
         ),
-        (pinTapped) ?
+        (displayInfo) ?
         Center(
             child: Container(
                 width: 150,

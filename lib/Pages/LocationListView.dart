@@ -10,6 +10,7 @@ import 'package:recharge/Helpers/FadeIn.dart';
 import 'package:recharge/Pages/DetailPage.dart';
 import 'package:recharge/Assets/data_global.dart';
 import 'package:recharge/Helpers/DistanceRequest.dart';
+import 'dart:convert';
 
 
 class LocationListView extends StatefulWidget {
@@ -53,6 +54,7 @@ class _LocationListViewState extends State<LocationListView> {
     }
     return [currentLocationTruth, location_distances];
   }
+
 
   Future<List> master_calculate_distance() async {
     List calculatedData = await _calculateData();
@@ -213,7 +215,8 @@ class _LocationListViewState extends State<LocationListView> {
                                   name: dataTruth[index]['name'],
                                   offerings: dataTruth[index]['offerings'],
                                   openTime: dataTruth[index]['open_time'],
-                                  closeTime: dataTruth[index]['close_time']
+                                  closeTime: dataTruth[index]['close_time'],
+                                  address: pinAddressTruth[index],
                                 ))); //present next screen
                               }
                               )));

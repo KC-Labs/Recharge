@@ -14,6 +14,7 @@ class DetailPage extends StatefulWidget {
   final String offerings;
   final int openTime;
   final int closeTime;
+  final String address;
 
 
   const DetailPage(
@@ -22,6 +23,7 @@ class DetailPage extends StatefulWidget {
       this.offerings,
       this.openTime,
       this.closeTime,
+      this.address,
       })
       : super(key: key);
   @override
@@ -122,7 +124,7 @@ class _DetailPageState extends State<DetailPage> {
               ),
               SizedBox(
                   width: currentWidth * 0.6,
-                  child: Text("15550 Rockfiled, Blvd, Irvine, CA 92618",
+                  child: Text(widget.address,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 19,

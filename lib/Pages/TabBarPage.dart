@@ -5,7 +5,7 @@ import 'package:recharge/Assets/device_ratio.dart';
 import 'package:recharge/Assets/shadows.dart';
 import 'package:recharge/Assets/colors.dart';
 import 'package:recharge/Assets/my_flutter_app_icons.dart';
-import 'package:recharge/Assets/locations.dart';
+import 'package:recharge/Assets/data_global.dart';
 import 'package:recharge/Pages/MapView.dart';
 import 'package:recharge/Pages/LocationListView.dart';
 import 'package:recharge/Pages/SideMenu.dart';

@@ -8,9 +8,11 @@ import 'package:recharge/Assets/device_ratio.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:recharge/Assets/fonts.dart';
+import 'package:recharge/Assets/data_global.dart';
 import 'package:recharge/Assets/shadows.dart';
 import 'package:recharge/Assets/my_flutter_app_icons.dart';
 import 'package:recharge/Helpers/FadeIn.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MapView extends StatefulWidget {
   FirebaseApp app;
@@ -26,8 +28,6 @@ class _MapViewState extends State<MapView> {
   GoogleMapController mapController;
   FirebaseApp app; 
   Map locationsData = Map();
-  bool wait_before_return = true;
-  bool markers_ready = false;
   
   SwiperController _swipeController;
   
@@ -71,6 +71,7 @@ class _MapViewState extends State<MapView> {
     List locationsDescriptions = List();
     Map locations = Map();
     locationsDescriptions = snapshot.value;
+    dataTruth = snapshot.value;
     print("printing locationsDescriptions");
     print(locationsDescriptions);
     assert(locationsDescriptions is List);
@@ -84,6 +85,7 @@ class _MapViewState extends State<MapView> {
     }
     print("Printing locations map.");
     print(locations);
+    locationsTruth = locations;
     locationsData = locations;
     print('FINISHED RETRIEVING LOCATION DATA FROM DATABASE');
   }
@@ -176,10 +178,18 @@ class _MapViewState extends State<MapView> {
     mapController = controller;
   }
 
+  void _updateLocation() async {
+    var currentLocation = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+    currentLocationTruth = [currentLocation.latitude, currentLocation.longitude];
+    print('currentLocationTruth');
+    print(currentLocationTruth);
+  }
+
   @override
   void initState() {
     super.initState();
     master_markers_setup();
+    _updateLocation();
     _swipeController = new SwiperController();
   }
 
@@ -189,6 +199,7 @@ class _MapViewState extends State<MapView> {
         body: Stack(
           children: <Widget>[
             GoogleMap(
+              onCameraMoveStarted: _updateLocation,
               mapType: MapType.normal,
               markers: _markers,
               initialCameraPosition: _defaultStart,

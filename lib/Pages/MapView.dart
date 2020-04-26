@@ -152,6 +152,9 @@ class _MapViewState extends State<MapView> {
                   target: LatLng(coords[i][0] + latOffset, coords[i][1]),
                   zoom: markerZoom,
                 ));
+                  setState(() {
+                   pinTapped = true;
+                });
               }));
         } else if (category == "Grocery") {
           markersToReturn.add(Marker(
@@ -163,6 +166,9 @@ class _MapViewState extends State<MapView> {
                   target: LatLng(coords[i][0] + latOffset, coords[i][1]),
                   zoom: markerZoom,
                 ));
+                  setState(() {
+                   pinTapped = true;
+                });
               }));
         }
       }

@@ -28,8 +28,6 @@ class _LocationListViewState extends State<LocationListView> {
   DistanceRequest request;
   List timesToLocations;
 
-  double _centerMarkerOffset = 0.0049;
-
   Future<List> _calculateDistances(List origin, List destinations) async {
     //api key manually set in global
     String origin_string = '${origin[0]},${origin[1]}';
@@ -220,7 +218,7 @@ class _LocationListViewState extends State<LocationListView> {
                                   openTime: dataTruth[index]['open_time'],
                                   closeTime: dataTruth[index]['close_time'],
                                   address: pinAddressTruth[index],
-                                  coords: LatLng(dataTruth[index]['latitude'] + _centerMarkerOffset, dataTruth[index]['longitude']),
+                                  coords: LatLng(dataTruth[index]['latitude'] + centerMarkerOffset, dataTruth[index]['longitude']),
                                   markerCoords: LatLng(dataTruth[index]['latitude'], dataTruth[index]['longitude']),
                                   category: dataTruth[index]['category'],
                                 ))); //present next screen
@@ -284,7 +282,7 @@ class _LocationListViewState extends State<LocationListView> {
                                       padding: const EdgeInsets.only(left: 25.0),
                                       child: Text(
                                           (index == _controller.index)
-                                              ? "7"
+                                              ? "7" 
                                               : "3",
                                           style: TextStyle(
                                               fontSize: 45,

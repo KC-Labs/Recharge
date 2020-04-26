@@ -11,6 +11,7 @@ import 'package:recharge/Pages/DetailListPage.dart';
 import 'package:recharge/Assets/data_global.dart';
 import 'package:recharge/Helpers/DistanceRequest.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:recharge/Assets/cloudInfo.dart';
 import 'dart:convert';
 
 class LocationListView extends StatefulWidget {

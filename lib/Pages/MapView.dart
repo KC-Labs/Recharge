@@ -17,6 +17,7 @@ import 'package:recharge/Pages/DetailPage.dart';
 import 'package:recharge/Helpers/Zoom.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:recharge/Assets/cloudInfo.dart';
 
 
 

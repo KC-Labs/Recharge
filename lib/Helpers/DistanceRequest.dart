@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:geolocator/geolocator.dart';
 
 
 class DistanceRequest {
@@ -16,8 +17,12 @@ class DistanceRequest {
   DistanceRequest({this.origin, this.destinations, this.apiKey});
 
   Future<List> fetchDistances() async {
+    print('destinations pinging');
+    print(destinations);
     String request_link = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
-    request_link = request_link + 'origins=' + origin + '&destinations=' + destinations + '&key=' + apiKey;
+    request_link = request_link + 'units=imperial&origins=' + origin + '&destinations=' + destinations + '&key=' + apiKey;
+    print('request_link');
+    print(request_link);
     final response = await http.get(request_link);
     if (response.statusCode == 200) {
       return processResponse(response.body);
@@ -28,7 +33,7 @@ class DistanceRequest {
 
   List processResponse(String jsonString) {
     print('jsonString: ' + jsonString);
-    List<int> totalDistanceTimes = List<int>();
+    List<String> totalDistanceTimes = List<String>();
     var distance_json = jsonDecode(jsonString);
     assert(distance_json is Map);
     var distance_rows = distance_json["rows"];
@@ -36,7 +41,7 @@ class DistanceRequest {
     var elements = distance_rows[0]["elements"];
     assert(elements is List);
     for (int i = 0;i < elements.length;i++) {
-      totalDistanceTimes.add(elements[i]["duration"]["value"]);
+      totalDistanceTimes.add(elements[i]["duration"]["text"]);
     }
     return totalDistanceTimes;
   }

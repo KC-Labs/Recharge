@@ -356,13 +356,11 @@ class _MapViewState extends State<MapView> {
                           color: mainColor,
                         )),
                     onTap: () {
-                      // CURRENT_LOCATION_ONTAP
-                      // NOTREADY
-                      var phs = CameraPosition(
-                        target: LatLng(33.672168, -117.714964),
+                      var current_location = CameraPosition(
+                        target: LatLng(currentLocationTruth[0], currentLocationTruth[1]),
                         zoom: 14,
                       );
-                      _goToPosition(phs);
+                      _goToPosition(current_location);
                     },
                   ),
                 ),

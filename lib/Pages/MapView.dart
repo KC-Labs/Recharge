@@ -210,6 +210,19 @@ class _MapViewState extends State<MapView> {
     return markersToReturn;
   }
 
+  String _hours(int open, int close) {
+    //THIS IS A SHORT CUT, NEED TO REWRITE LATER
+    if (open == 0 && close == 0) {
+      return 'Open 24 Hours'; 
+    } else {
+      String openNum = '${(open <= 12) ? open : (open - 12) }';
+      String openAP = (open <= 12) ? 'AM' : 'PM';
+      String closeNum = '${(close <= 12) ? close : (close - 12) }';
+      String closeAP = (close <= 12) ? 'AM' : 'PM';
+      return '$openNum $openAP - $closeNum $closeAP';
+    }
+  }
+
   void _onTap(int index) {
     _swipeController.move(index, animation: true);
   }
@@ -279,7 +292,6 @@ class _MapViewState extends State<MapView> {
     _swipeController.index = 0;
     return Scaffold(
         body: Stack(
-
           children: <Widget>[
             GoogleMap(
               onCameraMoveStarted: _cameraMoveStarted,
@@ -445,14 +457,14 @@ class _MapViewState extends State<MapView> {
                                   color: black,
                                   fontFamily: 'NunitoBold')),
                           Spacer(),
-                        ],
+                        ], 
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 2, left: 40.0),
                       child: Row(
                         children: <Widget>[
-                          Text("Open Now", // IMPLEMENT TIMES OPEN
+                          Text(_hours(currentInfo['open_time'], currentInfo['close_time']), // IMPLEMENT TIMES OPEN
                               style: TextStyle(
                                   fontSize: 12,
                                   fontFamily: 'NunitoRegular',

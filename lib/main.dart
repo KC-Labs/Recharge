@@ -16,10 +16,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   String name = 'recharge';
   FirebaseOptions options = const FirebaseOptions(
-    googleAppID: '1:883446079368:ios:80f7c413ad4115050e243d',
-    gcmSenderID: '883446079368',
-    apiKey: apiKeyTruth,
-    databaseURL: 'https://recharge-aeb50.firebaseio.com',
+    googleAppID: '1:754665357402:ios:d8d5c9873297796c589863',
+    gcmSenderID: '754665357402',
+    apiKey: apiKeyFirebase,
+    databaseURL: 'https://recharge-38fab.firebaseio.com',
   );
   final FirebaseApp app = await FirebaseApp.configure(
       name: name, 

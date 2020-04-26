@@ -39,6 +39,8 @@ class _MapViewState extends State<MapView> {
   BitmapDescriptor drinksIcon;
   BitmapDescriptor groceryIcon;
 
+  bool pinTapped = false;
+
   Set<Marker> _markers = Set<Marker>();
 
   static final CameraPosition _defaultStart = CameraPosition(

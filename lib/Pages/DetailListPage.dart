@@ -12,6 +12,8 @@ import 'package:recharge/Assets/data_global.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:maps_launcher/maps_launcher.dart';
+
 
 class DetailListPage extends StatefulWidget {
   final String name;
@@ -244,7 +246,7 @@ class _DetailListPageState extends State<DetailListPage> {
                         borderRadius: BorderRadius.all(
                             Radius.circular(35))),
                     onPressed: () {
-                      // DIRECTIONS
+                      MapsLauncher.launchQuery(_displayAddress);
                     },
                     child: Center(
                       child: Text(

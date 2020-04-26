@@ -48,6 +48,20 @@ class _MapViewState extends State<MapView> {
 
   Set<Marker> _markers = Set<Marker>();
 
+  List allFood;
+  List allDrinks;
+  List allGroceries;
+  List<List> masterList;
+  List currentList;
+  List<int> numberOfStores;
+  Set<Marker> allMarkers;
+  Set<Marker> allFoodMarkers;
+  Set<Marker> allDrinksMarkers;
+  Set<Marker> allGroceryMarkers;
+  Set<Marker> currentMarkers;
+  List<Color> colors = [green, mainColor, blue, orange];
+  List<String> categories = ["All", "Food", "Drinks", "Grocery"];
+
   static final CameraPosition _defaultStart = CameraPosition(
     target: LatLng(33.693139, -117.789026),
     bearing: 0,
@@ -57,10 +71,31 @@ class _MapViewState extends State<MapView> {
 
   _MapViewState({this.app});
 
+   _generatLists() {
+    allFood = dataTruth.where((i) => i['category'] == "Food").toList();
+    allDrinks = dataTruth.where((i) => i['category'] == "Drinks").toList();
+    allGroceries = dataTruth.where((i) => i['category'] == "Grocery").toList();
+    numberOfStores = [
+      dataTruth.length.toInt(),
+      allFood.length.toInt(),
+      allDrinks.length.toInt(),
+      allGroceries.length.toInt()
+    ];
+    masterList = [dataTruth, allFood, allDrinks, allGroceries];
+    print("generated list");
+    if (masterList != null) {
+      currentList = masterList[0];
+    }
+  }
+
   Future<void> master_markers_setup() async {
     await retrieveLocationData();
     await loadMarkerIcons();
     Set<Marker> markersToSubmit = _setupMarkers();
+    allMarkers = markersToSubmit;
+    currentMarkers = allMarkers;
+    print(dataTruth == null); //dataTruth can be accessed
+    _generatLists();
     setState(() {
       _markers = markersToSubmit;
     });
@@ -87,7 +122,7 @@ class _MapViewState extends State<MapView> {
     final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
     DataSnapshot snapshot =
         await database.reference().child('locations').once();
-    print('Connected to database and fetched ${snapshot.value}');
+   // print('Connected to database and fetched ${snapshot.value}');
     List locationsDescriptions = List();
     Map locations = Map();
     locationsDescriptions = snapshot.value;
@@ -102,11 +137,11 @@ class _MapViewState extends State<MapView> {
     }
 
     coordsToIndex = generatedCoordsToIndex;
-    print('generatedCoordsToIndex finished.');
-    print(generatedCoordsToIndex);
+   // print('generatedCoordsToIndex finished.');
+   // print(generatedCoordsToIndex);
 
-    print("printing locationsDescriptions");
-    print(locationsDescriptions);
+   // print("printing locationsDescriptions");
+//print(locationsDescriptions);
     assert(locationsDescriptions is List);
     for (int i = 0; i < locationsDescriptions.length; i++) {
       Map row = locationsDescriptions[i];
@@ -118,11 +153,11 @@ class _MapViewState extends State<MapView> {
         ];
       }
     }
-    print("Printing locations map.");
-    print(locations);
+   // print("Printing locations map.");
+   // print(locations);
     locationsTruth = locations;
     locationsData = locations;
-    print('FINISHED RETRIEVING LOCATION DATA FROM DATABASE');
+   // print('FINISHED RETRIEVING LOCATION DATA FROM DATABASE');
   }
 
   Future<String> _coordToAddress(String coordinates) async {
@@ -131,8 +166,8 @@ class _MapViewState extends State<MapView> {
     final response = await http.get(request_link);
     if (response.statusCode == 200) {
       var raw_return = jsonDecode(response.body);
-      print('raw_return');
-      print(raw_return);
+   //   print('raw_return');
+    //  print(raw_return);
       var formatted_address = raw_return["results"][0]["formatted_address"];
       return formatted_address;
     } else {
@@ -143,9 +178,12 @@ class _MapViewState extends State<MapView> {
   Set<Marker> _setupMarkers() {
     // grabs the global locationsTruth to generate
     Set<Marker> markersToReturn = Set<Marker>();
-    print('_setupMarkers is running.');
-    print('locationsData.');
-    print(locationsData);
+    allFoodMarkers = Set<Marker> ();
+    allDrinksMarkers = Set<Marker> ();
+    allGroceryMarkers = Set<Marker> ();
+ //   print('_setupMarkers is running.');
+ //   print('locationsData.');
+  //  print(locationsData);
     // assuming global locationsTruth is set.
     locationsData.forEach((category, coords) {
       //constants
@@ -156,16 +194,34 @@ class _MapViewState extends State<MapView> {
 
       for (int i = 0; i < coords.length; i++) {
         if (category == 'Food') {
+          allFoodMarkers.add(Marker(
+            markerId: MarkerId(category + '$i'),
+            position: LatLng(coords[i][0], coords[i][1]),
+            icon: foodIcon,
+            onTap: ()  {
+              _prepareInfo(coords[i][0], coords[i][1]);
+           //   print('coords[i][0]');
+             // print(coords[i][0]);
+            //  print('offset applied');
+            //  print(coords[i][0] + latOffset);
+                _goToPosition(CameraPosition(
+                target: LatLng(coords[i][0] + latOffset, coords[i][1]),
+                zoom: markerZoom,
+              ));
+              setState(() {
+                movingToPin = true;
+              });
+            }));
           markersToReturn.add(Marker(
             markerId: MarkerId(category + '$i'),
             position: LatLng(coords[i][0], coords[i][1]),
             icon: foodIcon,
             onTap: ()  {
               _prepareInfo(coords[i][0], coords[i][1]);
-              print('coords[i][0]');
-              print(coords[i][0]);
-              print('offset applied');
-              print(coords[i][0] + latOffset);
+           //   print('coords[i][0]');
+             // print(coords[i][0]);
+            //  print('offset applied');
+            //  print(coords[i][0] + latOffset);
                 _goToPosition(CameraPosition(
                 target: LatLng(coords[i][0] + latOffset, coords[i][1]),
                 zoom: markerZoom,
@@ -175,6 +231,20 @@ class _MapViewState extends State<MapView> {
               });
             }));
         } else if (category == "Drinks") {
+          allDrinksMarkers.add(Marker(
+            markerId: MarkerId(category + '$i'),
+            position: LatLng(coords[i][0], coords[i][1]),
+            icon: drinksIcon,
+            onTap: () {
+              _prepareInfo(coords[i][0], coords[i][1]);
+              _goToPosition(CameraPosition(
+                target: LatLng(coords[i][0] + latOffset, coords[i][1]),
+                zoom: markerZoom,
+              ));
+              setState(() {
+                movingToPin = true;
+              });
+            }));
           markersToReturn.add(Marker(
             markerId: MarkerId(category + '$i'),
             position: LatLng(coords[i][0], coords[i][1]),
@@ -190,6 +260,20 @@ class _MapViewState extends State<MapView> {
               });
             }));
         } else if (category == "Grocery") {
+            allGroceryMarkers.add(Marker(
+            markerId: MarkerId(category + '$i'),
+            position: LatLng(coords[i][0], coords[i][1]),
+            icon: groceryIcon,
+            onTap: () {
+              _prepareInfo(coords[i][0], coords[i][1]);
+              _goToPosition(CameraPosition(
+                target: LatLng(coords[i][0] + latOffset, coords[i][1]),
+                zoom: markerZoom,
+              ));
+              setState(() {
+                movingToPin = true;
+              });
+            }));
           markersToReturn.add(Marker(
             markerId: MarkerId(category + '$i'),
             position: LatLng(coords[i][0], coords[i][1]),
@@ -207,16 +291,49 @@ class _MapViewState extends State<MapView> {
         }
       }
     });
+    print(allGroceryMarkers.length);
     return markersToReturn;
+  }
+
+  String _hours(int open, int close) {
+    //THIS IS A SHORT CUT, NEED TO REWRITE LATER
+    if (open == 0 && close == 0) {
+      return 'Open 24 Hours'; 
+    } else {
+      String openNum = '${(open <= 12) ? open : (open - 12) }';
+      String openAP = (open <= 12) ? 'AM' : 'PM';
+      String closeNum = '${(close <= 12) ? close : (close - 12) }';
+      String closeAP = (close <= 12) ? 'AM' : 'PM';
+      return '$openNum $openAP - $closeNum $closeAP';
+    }
   }
 
   void _onTap(int index) {
     _swipeController.move(index, animation: true);
+    if (allMarkers != null) {
+      switch (index) {
+      case 0: currentMarkers = allMarkers; break;
+      case 1: currentMarkers = allFoodMarkers; break;
+      case 2: currentMarkers = allDrinksMarkers; break;
+      case 3: currentMarkers = allGroceryMarkers; break;
+    }
+    } else {
+      print("Hello Bro");
+    }
+    
+    print(currentMarkers.length);
+    setState(() {
+      displayInfo = false;
+      _markers = currentMarkers;
+    });
+
+
+
   }
 
    _goToPosition(CameraPosition newPosition) async {
-    print('animating camera to this position.');
-    print(newPosition.target);
+   // print('animating camera to this position.');
+   // print(newPosition.target);
     mapController.animateCamera(CameraUpdate.newCameraPosition(newPosition));
 
   }
@@ -228,8 +345,8 @@ class _MapViewState extends State<MapView> {
   void _updateLocation() async {
     var currentLocation = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
     currentLocationTruth = [currentLocation.latitude, currentLocation.longitude];
-    print('currentLocationTruth');
-    print(currentLocationTruth);
+  //  print('currentLocationTruth');
+  //  print(currentLocationTruth);
   }
 
   void _cameraMoveStarted() {
@@ -248,12 +365,12 @@ class _MapViewState extends State<MapView> {
 
   void _prepareInfo(double latitude, double longitude) {
     var index = coordsToIndex[latitude+longitude];
-    print('sum');
-    print(latitude+longitude);
-    print('reverse keyed index');
-    print(index);
-    print('coordsToIndex');
-    print(coordsToIndex);
+  ////  print('sum');
+  //  print(latitude+longitude);
+//  print('reverse keyed index');
+//  print(index);
+  //  print('coordsToIndex');
+  //  print(coordsToIndex);
     Map data_row = dataTruth[index];
     setState(() {
       currentInfo = data_row;
@@ -273,13 +390,13 @@ class _MapViewState extends State<MapView> {
     master_markers_setup();
     _updateLocation();
     _swipeController = new SwiperController();
+   
   }
 
   Widget build(BuildContext context) {
     _swipeController.index = 0;
     return Scaffold(
         body: Stack(
-
           children: <Widget>[
             GoogleMap(
               onCameraMoveStarted: _cameraMoveStarted,
@@ -294,7 +411,7 @@ class _MapViewState extends State<MapView> {
               onTap: _onMapTap,
             ),
             Padding(
-              padding: EdgeInsets.only(top: 30.0),
+              padding: EdgeInsets.only(top: 30),
               child: Container(
                   width: currentWidth,
                   height: 193,
@@ -303,6 +420,7 @@ class _MapViewState extends State<MapView> {
                       new Swiper(
                         scale: 0.4,
                         itemBuilder: (BuildContext context, int index) {
+
                           return Padding(
                             padding: EdgeInsets.only(
                                 left: 2.0, right: 2.0, top: 40, bottom: 40),
@@ -314,6 +432,7 @@ class _MapViewState extends State<MapView> {
                                     boxShadow: cardShadow),
                                 child: Center(
                                     child: Column(
+
                                   children: <Widget>[
                                     Padding(
                                       padding: EdgeInsets.only(top: 15.0),
@@ -323,63 +442,59 @@ class _MapViewState extends State<MapView> {
                                             padding: EdgeInsets.only(
                                                 left: 15.0, right: 10),
                                             child: Icon(MyFlutterApp.circle,
-                                                size: 15),
+                                                size: 15, color: colors[index]),
                                           ),
-                                          AutoSizeText("Selected",
+                                          AutoSizeText(categories[index],
                                               minFontSize: 12,
                                               maxLines: 1,
                                               style: categoryHeader),
                                         ],
-
                                       ),
-
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: 5.0),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 25.0),
-                                        child: Text(
-                                            (index == _swipeController.index)
-                                                ? "7"
-                                                : "3",
-                                            style: TextStyle(
-                                                fontSize: 45,
-                                                fontFamily: (index ==
-                                                        _swipeController.index)
-                                                    ? 'NunitoBold'
-                                                    : 'NunitoRegular')),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 5.0),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: <Widget>[
+                                          Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 15.0),
+                                              child: Text(
+                                                  numberOfStores[index]
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                      fontSize: 45,
+                                                      fontFamily: (index ==
+                                                              _swipeController.index)
+                                                          ? 'NunitoBold'
+                                                          : 'NunitoRegular'))),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 9.0),
+                                            child: Text("loactions \nfound",
+                                                maxLines: 2,
+                                                textAlign: TextAlign.left,
+                                                style: TextStyle(
+                                                    fontSize: 15,
+                                                    fontFamily: 'NunitoLight')),
+                                          ),
+                                        ],
                                       ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 9.0),
-                                        child: Text("loactions \nfound",
-                                            maxLines: 2,
-                                            textAlign: TextAlign.left,
-                                            style: TextStyle(
-                                                fontSize: 15,
-                                                fontFamily: 'NunitoLight')),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ))),
-                      );
-                    },
-                    controller: _swipeController,
-                    loop: false,
-                    itemCount: 4,
-                    viewportFraction: 0.36,
-                    onTap: (index) {
-                      _onTap(index);
-                    },
-                  ))),
-        ),
+                                    ),
+                                  ],
+                                ))),
+                          );
+                        },
+                        controller: _swipeController,
+                        loop: false,
+                        itemCount: categories.length,
+                        viewportFraction: 0.36,
+                        onTap: (index) {
+                          _onTap(index);
+                        },
+                      ))),
+            ),
         Positioned(
           left: 30,
           bottom: 140,
@@ -445,14 +560,14 @@ class _MapViewState extends State<MapView> {
                                   color: black,
                                   fontFamily: 'NunitoBold')),
                           Spacer(),
-                        ],
+                        ], 
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 2, left: 40.0),
                       child: Row(
                         children: <Widget>[
-                          Text("Open Now", // IMPLEMENT TIMES OPEN
+                          Text(_hours(currentInfo['open_time'], currentInfo['close_time']), // IMPLEMENT TIMES OPEN
                               style: TextStyle(
                                   fontSize: 12,
                                   fontFamily: 'NunitoRegular',
@@ -494,8 +609,8 @@ class _MapViewState extends State<MapView> {
                               Radius.circular(35))),
                       onPressed: () async {
                         var printable_coordinates = await _coordToAddress('${currentInfo['latitude']},${currentInfo['longitude']}');
-                        print('printable_coordinates');
-                        print(printable_coordinates);
+                       // print('printable_coordinates');
+                      //  print(printable_coordinates);
                         Navigator.push(context, ScaleRoute(page: DetailPage(
                           name: currentInfo["name"],
                           offerings: currentInfo["offerings"], 

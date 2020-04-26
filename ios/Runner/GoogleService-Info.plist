@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>883446079368-nlnuhs8i21ndv5scsf4qs7bcv6uk54l0.apps.googleusercontent.com</string>
+	<string>754665357402-bj9io07fommmjkkbebaudpd2b35nnfm1.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.883446079368-nlnuhs8i21ndv5scsf4qs7bcv6uk54l0</string>
+	<string>com.googleusercontent.apps.754665357402-bj9io07fommmjkkbebaudpd2b35nnfm1</string>
 	<key>API_KEY</key>
-	<string>AIzaSyAwLF8Iff11hU55MulnjxMUUp3BdJfjtqs</string>
+	<string>AIzaSyCJhApWtsNlhMatsuOkQTMBLcsvy3S1qr8</string>
 	<key>GCM_SENDER_ID</key>
-	<string>883446079368</string>
+	<string>754665357402</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.duova.recharge</string>
 	<key>PROJECT_ID</key>
-	<string>recharge-aeb50</string>
+	<string>recharge-38fab</string>
 	<key>STORAGE_BUCKET</key>
-	<string>recharge-aeb50.appspot.com</string>
+	<string>recharge-38fab.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,8 +29,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:883446079368:ios:80f7c413ad4115050e243d</string>
+	<string>1:754665357402:ios:d8d5c9873297796c589863</string>
 	<key>DATABASE_URL</key>
-	<string>https://recharge-aeb50.firebaseio.com</string>
+	<string>https://recharge-38fab.firebaseio.com</string>
 </dict>
 </plist>

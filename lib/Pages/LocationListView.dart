@@ -469,7 +469,12 @@ class _LocationListState extends State<LocationList> {
                                                             index]['open_time'],
                                                         closeTime: widget
                                                                 .finalList[index]
-                                                            ['close_time']))); //present next screen
+                                                            ['close_time'],
+                                                        coords: LatLng(widget.finalList[index]['latitude'] + centerMarkerOffset, widget.finalList[index]['longitude']),
+                                                        category: widget.finalList[index]['category'],
+                                                        markerCoords: LatLng(widget.finalList[index]['latitude'], widget.finalList[index]['longitude']),
+                                                    )
+                                                  )); //present next screen
                                           })));
                             }))));
           }

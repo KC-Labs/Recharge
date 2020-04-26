@@ -8,20 +8,32 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:recharge/Assets/shadows.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:recharge/Assets/data_global.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:maps_launcher/maps_launcher.dart';
+
 
 class DetailListPage extends StatefulWidget {
-   final String name;
+  final String name;
   final String offerings;
   final int openTime;
   final int closeTime;
+  final LatLng coords;
+  final String category;
+  final LatLng markerCoords;
+  
 
-
-  const DetailListPage(
+  DetailListPage(
       {Key key,
       @required this.name,
       this.offerings,
       this.openTime,
       this.closeTime,
+      this.coords,
+      this.category,
+      this.markerCoords,
       })
       : super(key: key);
   @override
@@ -29,6 +41,11 @@ class DetailListPage extends StatefulWidget {
 }
 
 class _DetailListPageState extends State<DetailListPage> {
+
+  String _displayAddress;
+
+  final Set<Marker> _markers = {};
+  Completer<GoogleMapController> _controller = Completer();
 
   String _hours(int open, int close) {
     //THIS IS A SHORT CUT, NEED TO REWRITE LATER
@@ -43,15 +60,38 @@ class _DetailListPageState extends State<DetailListPage> {
     }
   }
 
+  void processStringAddress() async {
+    String address = await _coordToAddress("${widget.coords.latitude},${widget.coords.longitude}");
+    setState(() {
+      _displayAddress = address;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    processStringAddress();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
         statusBarColor: white, //top bar color
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness:
             Brightness.dark // Dark == white status bar -- for IOS.
         ));
+  }
+
+  Future<String> _coordToAddress(String coordinates) async {
+    String request_link = 'https://maps.googleapis.com/maps/api/geocode/json?';
+    request_link = request_link + 'latlng=' + coordinates + '&key=' + apiKeyTruth;
+    final response = await http.get(request_link);
+    if (response.statusCode == 200) {
+      var raw_return = jsonDecode(response.body);
+      print('raw_return');
+      print(raw_return);
+      var formatted_address = raw_return["results"][0]["formatted_address"];
+      return formatted_address;
+    } else {
+      throw Exception('Failed to load distance data.');
+    }
   }
 
   Widget build(BuildContext context) {
@@ -122,7 +162,7 @@ class _DetailListPageState extends State<DetailListPage> {
               ),
               SizedBox(
                   width: currentWidth * 0.6,
-                  child: Text("15550 Rockfiled, Blvd, Irvine, CA 92618",
+                  child: Text((_displayAddress != null ? _displayAddress : "Loading Address..."),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 19,
@@ -139,15 +179,33 @@ class _DetailListPageState extends State<DetailListPage> {
                         border: Border.all(color: white, width: 5)),
                     child: ClipOval(
                       child: GoogleMap(
-                        mapType: MapType.normal,
-                        initialCameraPosition:
-                            // ********** ADJUST CAMERA POSITIONS HERE **************
-                            CameraPosition(
-                          target: LatLng(33.693139, -117.789026),
+                        initialCameraPosition: CameraPosition(
+                          target: widget.coords,
                           bearing: 0,
                           tilt: 0,
                           zoom: 12,
                         ),
+                        mapType: MapType.normal,
+                        rotateGesturesEnabled: false, 
+                        scrollGesturesEnabled: false, 
+                        zoomControlsEnabled: false, 
+                        zoomGesturesEnabled: false, 
+                        tiltGesturesEnabled: false,
+                        myLocationButtonEnabled: false,
+                        markers: _markers,
+                        onMapCreated: (GoogleMapController controller) {
+                          _controller.complete(controller);
+
+                          setState(() {
+                            _markers.add(
+                              Marker(
+                                markerId: MarkerId('focusMarker'),
+                                position: widget.markerCoords,
+                                icon: widget.category == "Food" ? foodIconTruth : (widget.category == "Drinks" ? drinksIconTruth : groceryIconTruth),
+                              )
+                            );
+                          });
+                        },
                       ),
                     ),
                   )),
@@ -188,7 +246,7 @@ class _DetailListPageState extends State<DetailListPage> {
                         borderRadius: BorderRadius.all(
                             Radius.circular(35))),
                     onPressed: () {
-                      // DIRECTIONS
+                      MapsLauncher.launchQuery(_displayAddress);
                     },
                     child: Center(
                       child: Text(

@@ -156,7 +156,7 @@ class _LocationListViewState extends State<LocationListView> {
                                         child: Text(
                                             dataTruth[index]["category"], // category of business
                                             style: TextStyle(
-                                                color: gray,
+                                                 color: gray,
                                                 fontFamily: 'NunitoRegular',
                                                 fontSize: 16 * widthRatio)),
                                       ),

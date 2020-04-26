@@ -66,14 +66,17 @@ class _MapViewState extends State<MapView> {
     var foodValue = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5), 'image_assets/pin_food.png');
     foodIcon = foodValue;
+    foodIconTruth = foodValue;
     var drinksValue = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5),
         'image_assets/pin_drinks.png');
     drinksIcon = drinksValue;
+    drinksIconTruth = drinksValue;
     var groceryValue = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5),
         'image_assets/pin_grocery.png');
     groceryIcon = groceryValue;
+    groceryIconTruth = groceryValue;
   }
 
   Future<void> retrieveLocationData() async {

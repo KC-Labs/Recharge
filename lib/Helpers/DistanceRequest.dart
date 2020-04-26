@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:recharge/Assets/data_global.dart';
 import 'package:geolocator/geolocator.dart';
 
 
@@ -25,6 +26,7 @@ class DistanceRequest {
    // print(request_link);
     final response = await http.get(request_link);
     if (response.statusCode == 200) {
+      _updateDestinationTruth(response.body);
       return processResponse(response.body);
     } else {
       throw Exception('Failed to load distance data.');
@@ -44,6 +46,12 @@ class DistanceRequest {
       totalDistanceTimes.add(elements[i]["duration"]["text"]);
     }
     return totalDistanceTimes;
+  }
+
+  void _updateDestinationTruth(String jsonString) async {
+    var addresses_json = jsonDecode(jsonString);
+    List addresses_array = addresses_json["destination_addresses"];
+    pinAddressTruth = addresses_array;
   }
 
 }

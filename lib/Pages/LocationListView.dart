@@ -10,6 +10,8 @@ import 'package:recharge/Helpers/FadeIn.dart';
 import 'package:recharge/Pages/DetailPage.dart';
 import 'package:recharge/Assets/data_global.dart';
 import 'package:recharge/Helpers/DistanceRequest.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:convert';
 
 class LocationListView extends StatefulWidget {
   @override
@@ -29,6 +31,8 @@ class _LocationListViewState extends State<LocationListView> {
   DistanceRequest request;
   List timesToLocations;
   int currentPageIndex = 0;
+
+  double _centerMarkerOffset = 0.0049;
 
   Future<List> _calculateDistances(List origin, List destinations) async {
     //api key manually set in global
@@ -56,6 +60,7 @@ class _LocationListViewState extends State<LocationListView> {
     }
     return [currentLocationTruth, location_distances];
   }
+
 
   Future<List> master_calculate_distance() async {
     List calculatedData = _calculateData();
@@ -118,6 +123,7 @@ class _LocationListViewState extends State<LocationListView> {
                       new Swiper(
                         scale: 0.4,
                         itemBuilder: (BuildContext context, int index) {
+
                           return Padding(
                             padding: EdgeInsets.only(
                                 left: 2.0, right: 2.0, top: 40, bottom: 40),
@@ -129,6 +135,7 @@ class _LocationListViewState extends State<LocationListView> {
                                     boxShadow: cardShadow),
                                 child: Center(
                                     child: Column(
+
                                   children: <Widget>[
                                     Padding(
                                       padding: EdgeInsets.only(top: 15.0),

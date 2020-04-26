@@ -26,6 +26,7 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   Completer<GoogleMapController> _controller = Completer();
+  GoogleMapController mapController;
   FirebaseApp app; 
   Map locationsData = Map();
   bool wait_before_return = true;
@@ -38,6 +39,13 @@ class _MapViewState extends State<MapView> {
   BitmapDescriptor groceryIcon;
 
   Set<Marker> _markers = Set<Marker>();
+
+  static final CameraPosition _defaultStart = CameraPosition(
+    target: LatLng(33.693139, -117.789026),
+    bearing: 0,
+    tilt: 0,
+    zoom: 12,
+  );
   
   _MapViewState({this.app});
 
@@ -82,14 +90,6 @@ class _MapViewState extends State<MapView> {
     locationsData = locations;
     print('FINISHED RETRIEVING LOCATION DATA FROM DATABASE');
   }
-  
-
-  static final CameraPosition _defaultStart = CameraPosition(
-    target: LatLng(33.693139, -117.789026),
-    bearing: 0,
-    tilt: 0,
-    zoom: 12,
-  );
 
   Set<Marker> _setupMarkers() {
     // grabs the global locationsTruth to generate
@@ -99,10 +99,13 @@ class _MapViewState extends State<MapView> {
     print(locationsData);
     // assuming global locationsTruth is set. 
     locationsData.forEach((category, coords) {
-      print('printing [category, coords]');
-      print([category, coords]);
-      print('printing coords.length.');
-      print(coords.length);
+      
+      //constants 
+      double markerZoom = 13.5;
+
+      //this number changes offset
+      double latOffset = 0.02;
+
       for (int i=0;i<coords.length;i++) {
         if (category == 'Food') {
           markersToReturn.add(
@@ -110,6 +113,18 @@ class _MapViewState extends State<MapView> {
               markerId: MarkerId(category + '$i'),
               position: LatLng(coords[i][0], coords[i][1]),
               icon: foodIcon,
+              onTap: () {
+                print('coords[i][0]');
+                print(coords[i][0]);
+                print('offset applied');
+                print(coords[i][0]+latOffset);
+                _goToPosition(
+                  CameraPosition(
+                    target: LatLng(coords[i][0]+latOffset, coords[i][1]),
+                    zoom: markerZoom,
+                  )
+                );
+              }
             )
           );
         } else if (category == "Drinks") {
@@ -118,6 +133,14 @@ class _MapViewState extends State<MapView> {
               markerId: MarkerId(category + '$i'),
               position: LatLng(coords[i][0], coords[i][1]),
               icon: drinksIcon,
+              onTap: () {
+                _goToPosition(
+                  CameraPosition(
+                    target: LatLng(coords[i][0]+latOffset, coords[i][1]),
+                    zoom: markerZoom,
+                  )
+                );
+              }
             )
           );
         } else if (category == "Grocery") {
@@ -126,6 +149,14 @@ class _MapViewState extends State<MapView> {
               markerId: MarkerId(category + '$i'),
               position: LatLng(coords[i][0], coords[i][1]),
               icon: groceryIcon,
+              onTap: () {
+                _goToPosition(
+                  CameraPosition(
+                    target: LatLng(coords[i][0]+latOffset, coords[i][1]),
+                    zoom: markerZoom,
+                  )
+                );
+              }
             )
           );
         }
@@ -138,7 +169,16 @@ class _MapViewState extends State<MapView> {
     _swipeController.move(index, animation: true);
   }
 
- 
+  void _goToPosition(CameraPosition newPosition) {
+    print('animating camera to this position.');
+    print(newPosition.target);
+    mapController.animateCamera(CameraUpdate.newCameraPosition(newPosition));
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -156,9 +196,10 @@ class _MapViewState extends State<MapView> {
               markers: _markers,
               initialCameraPosition: _defaultStart,
               onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
+                _onMapCreated(controller);
                 setState(() {});
               },
+              myLocationEnabled: true,
             ),
             Padding(
               padding: EdgeInsets.only(top: 30.0),
@@ -272,7 +313,15 @@ class _MapViewState extends State<MapView> {
                               MyFlutterApp.current_location,
                               color: mainColor,
                             )),
-                        onTap: () {},
+                        onTap: () {
+                          // CURRENT_LOCATION_ONTAP
+                          // NOTREADY
+                          var phs = CameraPosition(
+                            target: LatLng(33.672168, -117.714964),
+                            zoom: 14,
+                          );
+                          _goToPosition(phs);
+                        },
                       ),
                     ),
                   )),

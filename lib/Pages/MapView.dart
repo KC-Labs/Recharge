@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:recharge/Assets/colors.dart';
@@ -12,7 +10,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:recharge/Assets/fonts.dart';
 import 'package:recharge/Assets/shadows.dart';
 import 'package:recharge/Assets/my_flutter_app_icons.dart';
-import 'package:simple_animations/simple_animations.dart';
 import 'package:recharge/Helpers/FadeIn.dart';
 
 class MapView extends StatefulWidget {

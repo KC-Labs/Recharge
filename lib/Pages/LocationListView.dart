@@ -8,6 +8,8 @@ import 'package:recharge/Assets/shadows.dart';
 import 'package:recharge/Assets/fonts.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:recharge/Helpers/FadeIn.dart';
+import 'package:recharge/Pages/DetailPage.dart';
+
 
 class LocationListView extends StatefulWidget {
   @override
@@ -47,13 +49,18 @@ class _LocationListViewState extends State<LocationListView> {
           child: Container(
               width: currentWidth,
       height: 650,
-            child: FadeIn(4,  ConstrainedBox(
+            child: ConstrainedBox(
                       constraints: BoxConstraints(
                           maxHeight: 700,),
                       child: ListView.builder(
                         itemCount: 10,
                         itemBuilder: (BuildContext context, int index) {
-                           return Padding(
+                           return FadeIn(
+                             (index < 3) ?
+                             (index + 1) * 0.5 + 3 :
+                             0, 
+                             
+                             Padding(
                             padding: const EdgeInsets.fromLTRB(30, 14, 30, 14),
                             child: RaisedButton(
                               padding: EdgeInsets.fromLTRB(10, 20, 10, 20),
@@ -133,12 +140,13 @@ class _LocationListViewState extends State<LocationListView> {
                                 
                               ),
                               onPressed: () {
-
+                                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => DetailPage()));
                               }
-                              ));
+                              )));
+                           
                         }
                       )
-                      ))
+                      )
             )),
           
         

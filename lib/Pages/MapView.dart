@@ -59,10 +59,6 @@ class _MapViewState extends State<MapView> {
     groceryIcon = groceryValue;
   }
 
-  void initState() {
-    master_markers_setup();
-  }
-
   Future<void> retrieveLocationData() async {
     final FirebaseDatabase database = FirebaseDatabase(app: widget.app);
     DataSnapshot snapshot = await database.reference().child('locations').once();
@@ -83,7 +79,6 @@ class _MapViewState extends State<MapView> {
     }
     print("Printing locations map.");
     print(locations);
-    locationsTruth = locations;
     locationsData = locations;
     print('FINISHED RETRIEVING LOCATION DATA FROM DATABASE');
   }
@@ -147,6 +142,7 @@ class _MapViewState extends State<MapView> {
   @override
   void initState() {
     super.initState();
+    master_markers_setup();
     _swipeController = new SwiperController();
   }
 

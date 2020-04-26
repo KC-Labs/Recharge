@@ -18,12 +18,12 @@ class DistanceRequest {
   DistanceRequest({this.origin, this.destinations, this.apiKey});
 
   Future<List> fetchDistances() async {
-    print('destinations pinging');
-    print(destinations);
+   // print('destinations pinging');
+   //
     String request_link = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
     request_link = request_link + 'units=imperial&origins=' + origin + '&destinations=' + destinations + '&key=' + apiKey;
-    print('request_link');
-    print(request_link);
+   // print('request_link');
+   // print(request_link);
     final response = await http.get(request_link);
     if (response.statusCode == 200) {
       _updateDestinationTruth(response.body);
@@ -34,7 +34,7 @@ class DistanceRequest {
   }
 
   List processResponse(String jsonString) {
-    print('jsonString: ' + jsonString);
+   // print('jsonString: ' + jsonString);
     List<String> totalDistanceTimes = List<String>();
     var distance_json = jsonDecode(jsonString);
     assert(distance_json is Map);

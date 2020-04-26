@@ -8,8 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:recharge/Assets/colors.dart';
 
 
-// custom modules
 import 'package:recharge/Helpers/DistanceRequest.dart';
+import 'package:recharge/Assets/data_global.dart';
 
 
 Future<void> main() async {
@@ -18,7 +18,7 @@ Future<void> main() async {
   FirebaseOptions options = const FirebaseOptions(
     googleAppID: '1:883446079368:ios:80f7c413ad4115050e243d',
     gcmSenderID: '883446079368',
-    apiKey: 'AIzaSyAwLF8Iff11hU55MulnjxMUUp3BdJfjtqs',
+    apiKey: apiKeyTruth,
     databaseURL: 'https://recharge-aeb50.firebaseio.com',
   );
   final FirebaseApp app = await FirebaseApp.configure(

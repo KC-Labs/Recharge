@@ -8,20 +8,15 @@ import 'package:recharge/Assets/device_ratio.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:recharge/Assets/fonts.dart';
+import 'package:recharge/Assets/data_global.dart';
 import 'package:recharge/Assets/shadows.dart';
 import 'package:recharge/Assets/my_flutter_app_icons.dart';
 import 'package:recharge/Helpers/FadeIn.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:recharge/Pages/DetailPage.dart';
 import 'package:recharge/Helpers/Zoom.dart';
 
 
-//code to write to make the pop-up disappear 
-/*
-  setState(() {
-                   pinTapped = true;
-                });
-
-*/
 
 class MapView extends StatefulWidget {
   FirebaseApp app;
@@ -37,9 +32,6 @@ class _MapViewState extends State<MapView> {
   GoogleMapController mapController;
   FirebaseApp app;
   Map locationsData = Map();
-  bool wait_before_return = true;
-  bool markers_ready = false;
-  bool pinTapped = false; 
 
   SwiperController _swipeController;
 
@@ -89,6 +81,7 @@ class _MapViewState extends State<MapView> {
     List locationsDescriptions = List();
     Map locations = Map();
     locationsDescriptions = snapshot.value;
+    dataTruth = snapshot.value;
     print("printing locationsDescriptions");
     print(locationsDescriptions);
     assert(locationsDescriptions is List);
@@ -104,6 +97,7 @@ class _MapViewState extends State<MapView> {
     }
     print("Printing locations map.");
     print(locations);
+    locationsTruth = locations;
     locationsData = locations;
     print('FINISHED RETRIEVING LOCATION DATA FROM DATABASE');
   }
@@ -190,10 +184,18 @@ class _MapViewState extends State<MapView> {
     mapController = controller;
   }
 
+  void _updateLocation() async {
+    var currentLocation = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+    currentLocationTruth = [currentLocation.latitude, currentLocation.longitude];
+    print('currentLocationTruth');
+    print(currentLocationTruth);
+  }
+
   @override
   void initState() {
     super.initState();
     master_markers_setup();
+    _updateLocation();
     _swipeController = new SwiperController();
   }
 
@@ -201,55 +203,59 @@ class _MapViewState extends State<MapView> {
     _swipeController.index = 0;
     return Scaffold(
         body: Stack(
-      children: <Widget>[
-        GoogleMap(
-          mapType: MapType.normal,
-          markers: _markers,
-          initialCameraPosition: _defaultStart,
-          onMapCreated: (GoogleMapController controller) {
-            _onMapCreated(controller);
-            setState(() {});
-          },
-          myLocationEnabled: true,
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 30.0),
-          child: Container(
-              width: currentWidth,
-              height: 193,
-              child: FadeIn(
-                  3,
-                  new Swiper(
-                    scale: 0.4,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Padding(
-                        padding: EdgeInsets.only(
-                            left: 2.0, right: 2.0, top: 40, bottom: 40),
-                        child: new Container(
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                                boxShadow: cardShadow),
-                            child: Center(
-                                child: Column(
-                              children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(top: 15.0),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                            left: 15.0, right: 10),
-                                        child:
-                                            Icon(MyFlutterApp.circle, size: 15),
+
+          children: <Widget>[
+            GoogleMap(
+              onCameraMoveStarted: _updateLocation,
+              mapType: MapType.normal,
+              markers: _markers,
+              initialCameraPosition: _defaultStart,
+              onMapCreated: (GoogleMapController controller) {
+                _onMapCreated(controller);
+                setState(() {});
+              },
+              myLocationEnabled: true,
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 30.0),
+              child: Container(
+                  width: currentWidth,
+                  height: 193,
+                  child: FadeIn(
+                      3,
+                      new Swiper(
+                        scale: 0.4,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Padding(
+                            padding: EdgeInsets.only(
+                                left: 2.0, right: 2.0, top: 40, bottom: 40),
+                            child: new Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)),
+                                    boxShadow: cardShadow),
+                                child: Center(
+                                    child: Column(
+                                  children: <Widget>[
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 15.0),
+                                      child: Row(
+                                        children: <Widget>[
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                left: 15.0, right: 10),
+                                            child: Icon(MyFlutterApp.circle,
+                                                size: 15),
+                                          ),
+                                          AutoSizeText("Selected",
+                                              minFontSize: 12,
+                                              maxLines: 1,
+                                              style: categoryHeader),
+                                        ],
+
                                       ),
-                                      AutoSizeText("Selected",
-                                          minFontSize: 12,
-                                          maxLines: 1,
-                                          style: categoryHeader),
-                                    ],
-                                  ),
+
                                 ),
                                 Padding(
                                   padding: EdgeInsets.only(top: 5.0),

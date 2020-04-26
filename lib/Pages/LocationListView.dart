@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:recharge/Assets/colors.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:recharge/Assets/locations.dart';
 import 'package:recharge/Assets/device_ratio.dart';
 import 'package:recharge/Assets/my_flutter_app_icons.dart';
 import 'package:recharge/Assets/shadows.dart';
@@ -9,6 +8,8 @@ import 'package:recharge/Assets/fonts.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:recharge/Helpers/FadeIn.dart';
 import 'package:recharge/Pages/DetailPage.dart';
+import 'package:recharge/Assets/data_global.dart';
+import 'package:recharge/Helpers/DistanceRequest.dart';
 
 
 class LocationListView extends StatefulWidget {
@@ -22,9 +23,50 @@ class _LocationListViewState extends State<LocationListView> {
   SwiperController _verticalController;
   List<Color> colors = [mainColor, blue, orange];
 
+  DistanceRequest request;
+  List timesToLocations;
+
+  Future<List> _calculateDistances(List origin, List destinations) async {
+    //api key manually set in global
+    String origin_string = '${origin[0]},${origin[1]}';
+    String destinations_string = '${destinations[0]}';
+    for (int i=1;i<destinations.length;i++) {
+      destinations_string += '|${destinations[i]}';
+    }
+    print('origin_string');
+    print(origin_string);
+    print('destinations_string');
+    print(destinations_string);
+    request = DistanceRequest(
+      origin: origin_string,
+      destinations: destinations_string,
+      apiKey: apiKeyTruth,
+    );
+    List<dynamic> textResponses = await request.fetchDistances();
+    return textResponses;
+  }
+  
+  Future<List> _calculateData() async {
+    List location_distances = ['${dataTruth[0]['latitude']},${dataTruth[0]['longitude']}'];
+    for (int i=1;i<dataTruth.length;i++) {
+      location_distances.add('${dataTruth[i]['latitude']},${dataTruth[i]['longitude']}');
+    }
+    return [currentLocationTruth, location_distances];
+  }
+
+  Future<List> master_calculate_distance() async {
+    List calculatedData = await _calculateData();
+    List responses = await _calculateDistances(calculatedData[0], calculatedData[1]);
+    //setState(() {
+    //  timesToLocations = responses;
+   // });
+   return responses;
+  }
+  
   @override
   void initState() {
     super.initState();
+   master_calculate_distance();
     _controller = new SwiperController();
     _verticalController = new SwiperController();
   }
@@ -44,7 +86,14 @@ class _LocationListViewState extends State<LocationListView> {
      backgroundColor: Color(0xffF6F9FF),
      body: Stack(
        children: <Widget>[
-          Padding(
+          FutureBuilder(
+                        future: master_calculate_distance(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.none && snapshot.hasData == false) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                      else {
+                           return Padding(
           padding: EdgeInsets.only(top: 160),
           child: Container(
               width: currentWidth,
@@ -52,9 +101,10 @@ class _LocationListViewState extends State<LocationListView> {
             child: ConstrainedBox(
                       constraints: BoxConstraints(
                           maxHeight: 700,),
-                      child: ListView.builder(
-                        itemCount: 10,
+                      child:  ListView.builder(
+                        itemCount: dataTruth.length, // array.count,
                         itemBuilder: (BuildContext context, int index) {
+                          //index variable 
                            return FadeIn(
                              (index < 3) ?
                              (index + 1) * 0.5 + 3 :
@@ -81,14 +131,15 @@ class _LocationListViewState extends State<LocationListView> {
                                           EdgeInsets.only(left: 15.0, right: 10),
                                       child: Icon(MyFlutterApp.circle, size: 15, color: colors[index % 3]),
                                     ),
-                                    AutoSizeText("McDonald's",
+                                    AutoSizeText(dataTruth[index]["name"],  // name,
                                         minFontSize: 12,
                                         maxLines: 1,
                                         style: TextStyle(fontSize: 22, color: black, fontFamily: 'NunitoSemiBold')),
                                         Spacer(),
                                   Padding(
                                     padding: const EdgeInsets.only(right: 20.0),
-                                    child: Text("Open Now", style: TextStyle(fontSize: 12, fontFamily: 'NunitoRegular', color: green)),
+                                    child: Text("Open Now", //time calculation isOpen(currentTime DateTime)
+                                     style: TextStyle(fontSize: 12, fontFamily: 'NunitoRegular', color: green)),
                                   )
                                       ],
                                     ),
@@ -97,25 +148,43 @@ class _LocationListViewState extends State<LocationListView> {
                                     children: <Widget>[
                                       Padding(
                                         padding: EdgeInsets.only(left: 18.0),
-                                        child: Icon((index % 2 == 0) ? MyFlutterApp.food : MyFlutterApp.drinks, size: 15, color: gray),
+                                        child: Icon( (index % 2 == 0) ? MyFlutterApp.food : MyFlutterApp.drinks,  //category of the business
+                                        size: 15, color: gray),
                                       ),
                                       Padding(
                                         padding: EdgeInsets.only(left: 10.0, right: 20),
                                         child: Text(
-                                            (index % 2 == 0) ? "Food" : "Drinks",
+                                            dataTruth[index]["category"], // category of business
                                             style: TextStyle(
                                                 color: gray,
                                                 fontFamily: 'NunitoRegular',
                                                 fontSize: 16 * widthRatio)),
                                       ),
-                                      Text("${(0.6 * (index+1)).toStringAsPrecision(2)} miles", style: TextStyle(fontSize: 13, fontFamily: 'NunitoRegular', color: gray)),
+                                      FutureBuilder(
+                                        future: master_calculate_distance(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState == ConnectionState.done) {
+                                            if (snapshot.hasData) {
+                                              return   Text(
+                                        "${snapshot.data[index]}",
+                                         style: TextStyle(fontSize: 13, fontFamily: 'NunitoRegular', color: gray));
+                                            }
+                                          } else {
+                                            return SizedBox(
+                                              width: 20, height: 20,
+                                              child: CircularProgressIndicator());
+                                          }
+                                            return Container();
+                                        },
+                                      )
+                                    
                                     ],
                                   ),
                                   Row(
                                     children: <Widget>[
                                       Padding(
                                         padding: EdgeInsets.only(left: 18.0, top: 15, bottom: 15),
-                                        child: Text("Offers: Free food & drinks.", style: TextStyle(fontSize: 17, color: black, fontFamily: "NunitoRegular")),
+                                        child: Text(dataTruth[index]["summary"], style: TextStyle(fontSize: 17, color: black, fontFamily: "NunitoRegular")),
                                       ),
                                     ],
                                   ),
@@ -140,14 +209,21 @@ class _LocationListViewState extends State<LocationListView> {
                                 
                               ),
                               onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => DetailPage()));
+                                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => DetailPage())); //present next screen
                               }
                               )));
                            
                         }
                       )
+                      
+                     
+                      
+                     
                       )
-            )),
+            ));
+                        } 
+                      }),
+          
           
         
         Padding(

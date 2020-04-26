@@ -14,6 +14,15 @@ import 'package:recharge/Helpers/FadeIn.dart';
 import 'package:recharge/Pages/DetailPage.dart';
 import 'package:recharge/Helpers/Zoom.dart';
 
+
+//code to write to make the pop-up disappear 
+/*
+  setState(() {
+                   pinTapped = true;
+                });
+
+*/
+
 class MapView extends StatefulWidget {
   FirebaseApp app;
   MapView({this.app});
@@ -30,6 +39,7 @@ class _MapViewState extends State<MapView> {
   Map locationsData = Map();
   bool wait_before_return = true;
   bool markers_ready = false;
+  bool pinTapped = false; 
 
   SwiperController _swipeController;
 
@@ -118,15 +128,19 @@ class _MapViewState extends State<MapView> {
               markerId: MarkerId(category + '$i'),
               position: LatLng(coords[i][0], coords[i][1]),
               icon: foodIcon,
-              onTap: () {
+              onTap: ()  {
                 print('coords[i][0]');
                 print(coords[i][0]);
                 print('offset applied');
                 print(coords[i][0] + latOffset);
-                _goToPosition(CameraPosition(
+                 _goToPosition(CameraPosition(
                   target: LatLng(coords[i][0] + latOffset, coords[i][1]),
                   zoom: markerZoom,
                 ));
+                setState(() {
+                   pinTapped = true;
+                });
+               
               }));
         } else if (category == "Drinks") {
           markersToReturn.add(Marker(
@@ -160,7 +174,7 @@ class _MapViewState extends State<MapView> {
     _swipeController.move(index, animation: true);
   }
 
-  void _goToPosition(CameraPosition newPosition) {
+   _goToPosition(CameraPosition newPosition) async {
     print('animating camera to this position.');
     print(newPosition.target);
     mapController.animateCamera(CameraUpdate.newCameraPosition(newPosition));
@@ -314,6 +328,7 @@ class _MapViewState extends State<MapView> {
                 ),
               )),
         ),
+        (pinTapped) ?
         Center(
             child: Container(
                 width: 150,
@@ -372,6 +387,7 @@ class _MapViewState extends State<MapView> {
                         ],
                       ),
                     ),
+                    
                     Padding(
                       padding: EdgeInsets.only(top: 5.0),
                       child: Container(
@@ -391,14 +407,6 @@ class _MapViewState extends State<MapView> {
                               Radius.circular(35))),
                       onPressed: () {
                          Navigator.push(context, ScaleRoute(page: DetailPage()));
-/*
-Navigator.push(
-                          context,
-                          SlideUpRoute(
-                              page: SchedulePopup(
-                                  currentSchedule: _focusedSchedule,
-                                  currentDate: _focusedDate)));
-                         */
                       },
                       child: Center(
                         child: Text(
@@ -413,7 +421,7 @@ Navigator.push(
                 ),
                     ),
                   ],
-                )))
+                ))) : Container()
       ],
     ));
   }

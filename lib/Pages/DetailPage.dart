@@ -44,6 +44,12 @@ class _DetailPageState extends State<DetailPage> {
                       child: IconButton(
                         icon: Icon(Icons.arrow_back, color: white, size: 30),
                         onPressed: () {
+                          SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+        statusBarColor: white, //top bar color
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness:
+            Brightness.light // Dark == white status bar -- for IOS.
+        ));
                           Navigator.pop(context);
                         },
                       ),

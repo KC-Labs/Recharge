@@ -23,15 +23,51 @@ class _LocationListViewState extends State<LocationListView> {
   SwiperController _verticalController;
   List<Color> colors = [mainColor, blue, orange];
 
+  DistanceRequest request;
+  List timesToLocations;
 
+  Future<List> _calculateDistances(List origin, List destinations) async {
+    //api key manually set in global
+    String origin_string = '${origin[0]},${origin[1]}';
+    String destinations_string = '${destinations[0]}';
+    for (int i=1;i<destinations.length;i++) {
+      destinations_string += '|${destinations[i]}';
+    }
+    print('origin_string');
+    print(origin_string);
+    print('destinations_string');
+    print(destinations_string);
+    request = DistanceRequest(
+      origin: origin_string,
+      destinations: destinations_string,
+      apiKey: apiKeyTruth,
+    );
+    List<dynamic> textResponses = await request.fetchDistances();
+    return textResponses;
+  }
+  
+  List _calculateData() {
+    List location_distances = ['${dataTruth[0]['latitude']},${dataTruth[0]['longitude']}'];
+    for (int i=1;i<dataTruth.length;i++) {
+      location_distances.add('${dataTruth[i]['latitude']},${dataTruth[i]['longitude']}');
+    }
+    return [currentLocationTruth, location_distances];
+  }
+
+  Future<void> master_calculate_distance() async {
+    List calculatedData = _calculateData();
+    List responses = await _calculateDistances(calculatedData[0], calculatedData[1]);
+    setState(() {
+      timesToLocations = responses;
+    });
+  }
   
   @override
   void initState() {
     super.initState();
+    master_calculate_distance();
     _controller = new SwiperController();
     _verticalController = new SwiperController();
-    print('dataTruth.');
-    print(dataTruth);
   }
 
   void _onTap(int index) {
@@ -116,7 +152,7 @@ class _LocationListViewState extends State<LocationListView> {
                                                 fontFamily: 'NunitoRegular',
                                                 fontSize: 16 * widthRatio)),
                                       ),
-                                      Text("${(0.6 * (index+1)).toStringAsPrecision(2)} miles", style: TextStyle(fontSize: 13, fontFamily: 'NunitoRegular', color: gray)),
+                                      Text("${timesToLocations[index]}", style: TextStyle(fontSize: 13, fontFamily: 'NunitoRegular', color: gray)),
                                     ],
                                   ),
                                   Row(

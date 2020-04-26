@@ -10,6 +10,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:recharge/Assets/data_global.dart';
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class DetailListPage extends StatefulWidget {
   final String name;
@@ -19,6 +21,7 @@ class DetailListPage extends StatefulWidget {
   final LatLng coords;
   final String category;
   final LatLng markerCoords;
+  
 
   DetailListPage(
       {Key key,
@@ -37,6 +40,8 @@ class DetailListPage extends StatefulWidget {
 
 class _DetailListPageState extends State<DetailListPage> {
 
+  String _displayAddress;
+
   final Set<Marker> _markers = {};
   Completer<GoogleMapController> _controller = Completer();
 
@@ -53,15 +58,38 @@ class _DetailListPageState extends State<DetailListPage> {
     }
   }
 
+  void processStringAddress() async {
+    String address = await _coordToAddress("${widget.coords.latitude},${widget.coords.longitude}");
+    setState(() {
+      _displayAddress = address;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    processStringAddress();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
         statusBarColor: white, //top bar color
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness:
             Brightness.dark // Dark == white status bar -- for IOS.
         ));
+  }
+
+  Future<String> _coordToAddress(String coordinates) async {
+    String request_link = 'https://maps.googleapis.com/maps/api/geocode/json?';
+    request_link = request_link + 'latlng=' + coordinates + '&key=' + apiKeyTruth;
+    final response = await http.get(request_link);
+    if (response.statusCode == 200) {
+      var raw_return = jsonDecode(response.body);
+      print('raw_return');
+      print(raw_return);
+      var formatted_address = raw_return["results"][0]["formatted_address"];
+      return formatted_address;
+    } else {
+      throw Exception('Failed to load distance data.');
+    }
   }
 
   Widget build(BuildContext context) {
@@ -132,7 +160,7 @@ class _DetailListPageState extends State<DetailListPage> {
               ),
               SizedBox(
                   width: currentWidth * 0.6,
-                  child: Text("15550 Rockfiled, Blvd, Irvine, CA 92618",
+                  child: Text((_displayAddress != null ? _displayAddress : "Loading Address..."),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 19,

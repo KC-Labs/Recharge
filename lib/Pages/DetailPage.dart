@@ -10,6 +10,8 @@ import 'package:recharge/Assets/shadows.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'dart:async';
+import 'package:maps_launcher/maps_launcher.dart';
+
 
 class DetailPage extends StatefulWidget {
   final String name;
@@ -220,6 +222,7 @@ class _DetailPageState extends State<DetailPage> {
                             Radius.circular(35))),
                     onPressed: () {
                       // DIRECTIONS
+                      MapsLauncher.launchQuery(widget.address);
                     },
                     child: Center(
                       child: Text(
